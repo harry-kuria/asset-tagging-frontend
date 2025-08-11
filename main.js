@@ -13,7 +13,8 @@ const createWindow = () => {
     },
   })
 
-  const indexPath = path.resolve(__dirname, 'index.html')
+  // Load CRA build output when packaged
+  const indexPath = path.join(__dirname, 'build', 'index.html')
   mainWindow.loadFile(indexPath)
   mainWindow.setMenuBarVisibility(false)
 
