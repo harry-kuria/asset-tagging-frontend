@@ -1,0 +1,60 @@
+name: OTA Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.2.3)'
+        required: true
+      notes:
+        description: "What's new (release notes, Markdown supported)"
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Update package version
+        run: |
+          NEW_VERSION=${{ github.event.inputs.version }}
+          npm version --no-git-tag-version "$NEW_VERSION"
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add package.json package-lock.json || true
+          git commit -m "chore(version): bump to v$NEW_VERSION"
+          git tag "v$NEW_VERSION"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+        env:
+          CI: false
+          DISABLE_ESLINT_PLUGIN: true
+
+      - name: Build and publish installers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx electron-builder --win nsis portable --linux AppImage deb rpm tar.gz --mac dmg zip --publish always
+
+      - name: Create GitHub Release with notes
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: Moowi Installer v${{ github.event.inputs.version }}
+          body: ${{ github.event.inputs.notes }}
+          files: |
+            dist/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 

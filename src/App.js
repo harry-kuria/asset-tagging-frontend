@@ -11,6 +11,7 @@ import ViewReport from './components/ViewReport'
 import WidgetsBrand from './views/widgets/WidgetsBrand'
 import Dashboard from './views/dashboard/Dashboard'
 import { AuthProvider } from './components/AuthContext'
+import UpdatePrompt from './components/UpdatePrompt'
 
 const loading = (
   <div className="pt-3 text-center">
@@ -32,6 +33,7 @@ function App() {
     <HashRouter>
       <AuthProvider>
         <Suspense fallback={loading}>
+          <UpdatePrompt />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
