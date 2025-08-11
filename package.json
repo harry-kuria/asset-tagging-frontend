@@ -27,7 +27,7 @@
   },
   "build": {
     "appId": "assettagging.app.id",
-    "productName": "AssetTagging",
+    "productName": "Moowi Installer",
     "directories": {
       "output": "dist"
     },
@@ -36,10 +36,11 @@
       "main.js",
       "node_modules/**/*"
     ],
-    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "artifactName": "Moowi Installer-${version}-${os}-${arch}.${ext}",
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "portable"
       ],
       "icon": "moowi.ico"
     },
@@ -54,14 +55,17 @@
     },
     "mac": {
       "target": [
-        "dmg"
+        "dmg",
+        "zip"
       ],
       "category": "public.app-category.business"
     },
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "rpm",
+        "tar.gz"
       ],
       "category": "Utility"
     }
