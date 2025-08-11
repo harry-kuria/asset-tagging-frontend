@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { Table, Button } from 'react-bootstrap'
+import { endpoints } from '../config/api'
 
 const AssetList = () => {
   const [assets, setAssets] = useState([])
@@ -10,7 +11,7 @@ const AssetList = () => {
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/assets')
+        const response = await axios.get(endpoints.assets)
         setAssets(response.data)
       } catch (error) {
         console.error('Error fetching assets:', error)
@@ -27,13 +28,11 @@ const AssetList = () => {
 
   const handleDelete = async (assetId) => {
     try {
-      await axios.delete(`https://profitvision.geolea.com/impact/api/assets/${assetId}`)
-      // Refresh the asset list after deletion
-      const response = await axios.get('https://profitvision.geolea.com/impact/api/assets')
+      await axios.delete(`${endpoints.assets}/${assetId}`)
+      const response = await axios.get(endpoints.assets)
       setAssets(response.data)
     } catch (error) {
       console.error('Error deleting asset:', error)
-      // Show error message
     }
   }
 

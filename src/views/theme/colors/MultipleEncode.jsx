@@ -7,6 +7,7 @@ import Barcode from 'react-barcode'
 import ReactToPdf from 'react-to-pdf'
 import jsPDF from 'jspdf' // Import jsPDF library
 import 'jspdf-autotable'
+import { endpoints } from '../../../config/api'
 
 const MultipleEncode = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -71,7 +72,7 @@ const MultipleEncode = () => {
     // Fetch assets based on filters to generate barcodes
     try {
       const response = await axios.post(
-        'https://profitvision.geolea.com/impact/api/generateBarcodesByInstitutionAndDepartment',
+        endpoints.generateBarcodesByInstitutionAndDepartment,
         {
           institution: filters.institution || null,
           department: filters.department || null,
@@ -92,7 +93,7 @@ const MultipleEncode = () => {
   useEffect(() => {
     const fetchInstitutions = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/institutions')
+        const response = await axios.get(endpoints.institutions)
         setInstitutionList(response.data)
       } catch (error) {
         console.error('Error fetching institutions:', error)
@@ -100,7 +101,7 @@ const MultipleEncode = () => {
     }
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/departments')
+        const response = await axios.get(endpoints.departments)
         setDepartments(response.data)
       } catch (error) {
         console.error('Error fetching departments:', error)
@@ -108,7 +109,7 @@ const MultipleEncode = () => {
     }
     const fetchFunctionalAreas = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/functionalAreas')
+        const response = await axios.get(endpoints.functionalAreas)
         setFunctionalAreas(response.data)
       } catch (error) {
         console.error('Error fetching functional areas:', error)
@@ -123,7 +124,7 @@ const MultipleEncode = () => {
   useEffect(() => {
     const fetchSearchResults = async () => {
       try {
-        const response = await axios.get(`https://profitvision.geolea.com/impact/api/searchAssets`, {
+        const response = await axios.get(endpoints.searchAssets, {
           params: {
             term: searchTerm,
             ...filters,
@@ -147,9 +148,7 @@ const MultipleEncode = () => {
 
     if (assetDetails) {
       try {
-        const response = await axios.get(
-          `http://45.79.205.197:5000/api/getAssetDetails?id=${assetDetails.id}`,
-        )
+        const response = await axios.get(endpoints.getAssetDetails(assetDetails.id))
         const detailedInfo = response.data
         const institutionName = detailedInfo.institutionName.toUpperCase()
         const institutionShort = detailedInfo.institutionName.substring(0, 2).toUpperCase()

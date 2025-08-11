@@ -4,6 +4,7 @@ import axios from 'axios'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import * as XLSX from 'xlsx'
+import { endpoints } from '../config/api'
 
 const AddAsset = () => {
   const [assetData, setAssetData] = useState({
@@ -32,7 +33,7 @@ const AddAsset = () => {
     // Fetch asset categories when the component mounts
     const fetchAssetCategories = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/categories')
+        const response = await endpoints.categories()
         setAssetCategories(response.data)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
@@ -491,10 +492,7 @@ const AddAsset = () => {
         console.log('Asset Type:', assetType)
         try {
           //console.log('Data being sent to server:', assets)
-          const response = await axios.post(
-            `https://profitvision.geolea.com/impact/api/addMultipleAssets/${assetType}`,
-            assets,
-          )
+          const response = await endpoints.addMultipleAssets(assetType)(assets)
           // Assuming your backend responds with a success message
           if (response.data.success) {
             // Handle success as needed
@@ -545,11 +543,7 @@ const AddAsset = () => {
               formData.append(key, value)
             }
           })
-          const response = await axios.post('https://profitvision.geolea.com/impact/api/addAsset', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          })
+          const response = await endpoints.addAsset(asset.assetType)(formData)
           if (response.data.success) {
             // Handle success as needed
           } else {
@@ -570,11 +564,7 @@ const AddAsset = () => {
             formData.append(key, value)
           }
         })
-        const response = await axios.post('https://profitvision.geolea.com/impact/api/addAsset', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
+        const response = await endpoints.addAsset(assetData.assetType)(formData)
         if (response.data.success) {
           // Reset the form or perform any other necessary actions
           setAssetData({

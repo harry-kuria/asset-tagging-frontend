@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import axios from 'axios'
+import { endpoints } from '../config/api'
 
 const EditUser = ({ userId }) => {
   const [userData, setUserData] = useState({ username: '', password: '' })
@@ -9,7 +10,7 @@ const EditUser = ({ userId }) => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get(`https://profitvision.geolea.com/impact/api/users/${userId}`)
+        const response = await axios.get(endpoints.userById(userId))
         setUserData(response.data)
       } catch (error) {
         console.error('Error fetching user details:', error)
@@ -21,7 +22,7 @@ const EditUser = ({ userId }) => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`https://profitvision.geolea.com/impact/api/users/${userId}`, userData)
+      await axios.put(endpoints.userById(userId), userData)
       // Show success message or redirect to user list
     } catch (error) {
       console.error('Error updating user:', error)

@@ -6,6 +6,7 @@ import QRCode from 'qrcode.react'
 import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import axios from 'axios'
+import { endpoints } from '../config/api'
 
 const EncodeBarcode = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -19,7 +20,7 @@ const EncodeBarcode = () => {
     const fetchSearchResults = async () => {
       try {
         const response = await axios.get(
-          `https://profitvision.geolea.com/impact/api/searchAssets?term=${searchTerm}`,
+          `${endpoints.searchAssets}?term=${searchTerm}`,
         )
         setSearchResults(response.data)
       } catch (error) {
@@ -47,7 +48,7 @@ const EncodeBarcode = () => {
       try {
         // Make an API request to get detailed information based on asset ID
         const response = await axios.get(
-          `https://profitvision.geolea.com/impact/api/getAssetDetails?id=${assetDetails.id}`,
+          `${endpoints.getAssetDetails(assetDetails.id)}`,
         )
         const detailedInfo = response.data
         const institutionName = response.data.institutionName.toUpperCase()

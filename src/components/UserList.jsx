@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { endpoints } from '../config/api'
 
 const UserList = () => {
   const [users, setUsers] = useState([])
@@ -10,7 +11,7 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/users')
+        const response = await axios.get(endpoints.users)
         setUsers(response.data)
       } catch (error) {
         console.error('Error fetching users:', error)
@@ -27,9 +28,9 @@ const UserList = () => {
 
   const handleDelete = async (userId) => {
     try {
-      await axios.delete(`https://profitvision.geolea.com/impact/api/users/${userId}`)
+      await axios.delete(endpoints.userById(userId))
       // Refresh the user list after deletion
-      const response = await axios.get('https://profitvision.geolea.com/impact/api/users')
+      const response = await axios.get(endpoints.users)
       setUsers(response.data)
     } catch (error) {
       console.error('Error deleting user:', error)

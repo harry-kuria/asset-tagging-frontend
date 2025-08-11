@@ -1,7 +1,6 @@
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
-
 import { CBadge } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
@@ -36,6 +35,7 @@ export const AppSidebarNav = ({ items }) => {
       </Component>
     )
   }
+
   const navGroup = (item, index) => {
     const { component, name, icon, to, ...rest } = item
     const Component = component
@@ -65,3 +65,5 @@ export const AppSidebarNav = ({ items }) => {
 AppSidebarNav.propTypes = {
   items: PropTypes.arrayOf(PropTypes.any).isRequired,
 }
+
+export default AppSidebarNav

@@ -1,19 +1,9 @@
-// AddUserForm.jsx
-
 import React, { useState } from 'react'
-import {
-  TextField,
-  Button,
-  Container,
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  FormControl,
-} from '@mui/material'
+import { Container, Form, Button } from 'react-bootstrap'
 import axios from 'axios'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { endpoints } from '../../../config/api'
 
 const AddUserForm = () => {
   const [hasAllRoles, setHasAllRoles] = useState(false)
@@ -27,13 +17,14 @@ const AddUserForm = () => {
       addMultipleAssets: false,
       viewReports: false,
       printReports: false,
-      // Add more roles as needed
     },
   })
+
   const handleCheckAllRoles = () => {
     const allRoles = Object.values(user.roles).every((role) => role === true)
     setHasAllRoles(allRoles)
   }
+
   const handleInputChange = (e) => {
     if (e.target.type === 'checkbox') {
       setUser({
@@ -50,24 +41,20 @@ const AddUserForm = () => {
 
   const handleAddUser = async () => {
     try {
-      // Extract the roles from the user state
       const { username, password, roles } = user
       const rolesArray = Object.entries(roles)
         .filter(([_, value]) => value)
-        .map(([key, _]) => key)
+        .map(([key]) => key)
 
-      // Send roles as an array to the server
-      const response = await axios.post('https://profitvision.geolea.com/impact/api/addUser', {
+      await axios.post(endpoints.addUser, {
         username,
         password,
         roles: rolesArray,
       })
 
-      console.log(response.data) // Handle the response as needed
-
       toast.success('User added successfully', {
         position: 'top-right',
-        autoClose: 3000, // Close the toast after 3000 milliseconds (3 seconds)
+        autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -81,103 +68,85 @@ const AddUserForm = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
-        Add User
-      </Typography>
-      <form>
-        <TextField
-          label="Username"
-          name="username"
-          value={user.username}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Password"
-          name="password"
-          type="password"
-          value={user.password}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
-        <FormControl component="fieldset">
-          <Typography variant="h6">Select User Roles:</Typography>
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.roles.userManagement}
-                  onChange={handleInputChange}
-                  name="userManagement"
-                  onClick={handleCheckAllRoles}
-                />
-              }
-              label="Create Users"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.roles.assetManagement}
-                  onChange={handleInputChange}
-                  name="assetManagement"
-                  onClick={handleCheckAllRoles}
-                />
-              }
-              label="View Users"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.roles.encodeAssets}
-                  onChange={handleInputChange}
-                  name="encodeAssets"
-                  onClick={handleCheckAllRoles}
-                />
-              }
-              label="Create Assets"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.roles.addMultipleAssets}
-                  onChange={handleInputChange}
-                  name="addMultipleAssets"
-                  onClick={handleCheckAllRoles}
-                />
-              }
-              label="Encode Multiple Assets"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.roles.viewReports}
-                  onChange={handleInputChange}
-                  name="viewReports"
-                  onClick={handleCheckAllRoles}
-                />
-              }
-              label="View Reports"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={user.roles.printReports}
-                  onChange={handleInputChange}
-                  name="printReports"
-                  onClick={handleCheckAllRoles}
-                />
-              }
-              label="Print Reports"
-            />
-          </FormGroup>
-          <Button variant="contained" color="primary" onClick={handleAddUser}>
-            Add User
-          </Button>
-        </FormControl>
+      <h4 className="mb-3">Add User</h4>
+      <Form>
+        <Form.Group className="mb-3" controlId="username">
+          <Form.Label>Username</Form.Label>
+          <Form.Control
+            type="text"
+            name="username"
+            value={user.username}
+            onChange={handleInputChange}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="password">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            value={user.password}
+            onChange={handleInputChange}
+          />
+        </Form.Group>
+
+        <div className="mb-2 fw-semibold">Select User Roles:</div>
+        <div className="mb-3">
+          <Form.Check
+            type="checkbox"
+            label="Create Users"
+            name="userManagement"
+            checked={user.roles.userManagement}
+            onChange={handleInputChange}
+            onClick={handleCheckAllRoles}
+          />
+          <Form.Check
+            type="checkbox"
+            label="View Users"
+            name="assetManagement"
+            checked={user.roles.assetManagement}
+            onChange={handleInputChange}
+            onClick={handleCheckAllRoles}
+          />
+          <Form.Check
+            type="checkbox"
+            label="Create Assets"
+            name="encodeAssets"
+            checked={user.roles.encodeAssets}
+            onChange={handleInputChange}
+            onClick={handleCheckAllRoles}
+          />
+          <Form.Check
+            type="checkbox"
+            label="Encode Multiple Assets"
+            name="addMultipleAssets"
+            checked={user.roles.addMultipleAssets}
+            onChange={handleInputChange}
+            onClick={handleCheckAllRoles}
+          />
+          <Form.Check
+            type="checkbox"
+            label="View Reports"
+            name="viewReports"
+            checked={user.roles.viewReports}
+            onChange={handleInputChange}
+            onClick={handleCheckAllRoles}
+          />
+          <Form.Check
+            type="checkbox"
+            label="Print Reports"
+            name="printReports"
+            checked={user.roles.printReports}
+            onChange={handleInputChange}
+            onClick={handleCheckAllRoles}
+          />
+        </div>
+
+        <Button variant="primary" onClick={handleAddUser}>
+          Add User
+        </Button>
         <ToastContainer position="top-right" autoClose={3000} />
-      </form>
+      </Form>
     </Container>
   )
 }

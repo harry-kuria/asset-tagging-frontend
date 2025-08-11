@@ -27,6 +27,7 @@
   },
   "build": {
     "appId": "assettagging.app.id",
+    "productName": "AssetTagging",
     "directories": {
       "output": "dist"
     },
@@ -35,8 +36,34 @@
       "main.js",
       "node_modules/**/*"
     ],
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "win": {
+      "target": [
+        "nsis"
+      ],
       "icon": "moowi.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Asset Tagging"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
     }
   },
   "dependencies": {
@@ -48,11 +75,7 @@
     "@coreui/react": "^4.9.0-rc.0",
     "@coreui/react-chartjs": "^2.1.3",
     "@coreui/utils": "^2.0.2",
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
     "@material/linear-progress": "^14.0.0",
-    "@mui/lab": "^5.0.0-alpha.159",
-    "@mui/material": "^5.15.4",
     "axios": "^1.6.3",
     "chart.js": "^3.9.1",
     "classnames": "^2.3.2",
@@ -62,17 +85,17 @@
     "file-saver": "^2.0.5",
     "fs-extra": "^11.2.0",
     "jspdf-autotable": "^3.8.1",
-    "mui": "^0.0.1",
     "pdf-lib": "^1.17.1",
     "prop-types": "^15.8.1",
-    "react": "^18.2.0",
+    "react": "^18.3.1",
     "react-app-polyfill": "^3.0.0",
     "react-barcode": "^1.4.6",
     "react-bootstrap": "^2.9.2",
+    "react-chartjs-2": "^5.3.0",
     "react-datepicker": "^4.25.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "^18.3.1",
     "react-redux": "^8.1.1",
-    "react-router-dom": "^6.14.0",
+    "react-router-dom": "^6.30.1",
     "react-to-pdf": "^1.0.1",
     "react-toastify": "^9.1.3",
     "redux": "4.2.1",

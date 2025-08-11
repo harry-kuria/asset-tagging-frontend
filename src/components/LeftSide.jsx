@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { endpoints } from '../config/api'
 
 const LeftSide = () => {
   const [username, setUsername] = useState('')
@@ -11,14 +12,11 @@ const LeftSide = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // Make a request to your backend to check the credentials
-      const response = await axios.post('https://profitvision.geolea.com/impact/api/login', {
+      const response = await axios.post(endpoints.login, {
         username,
         password,
       })
-      // Assuming your backend responds with a success message
       if (response.data.success) {
-        // alert('Login successful!');
         console.log('success')
         navigate('/dashboard')
       } else {

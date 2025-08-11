@@ -7,6 +7,7 @@ import './Home.css'
 import { BrowserRouter as Router, Route, Routes,Link } from 'react-router-dom'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { endpoints } from '../config/api'
 
 const Home = () => {
   const [username, setUsername] = useState('')
@@ -16,13 +17,18 @@ const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
 
-  const [newuserusername, setnewuserUsername] = useState('')
-  const [newuserpassword, setnewuserPassword] = useState('')
+  // Create Account form state
+  const [companyName, setCompanyName] = useState('')
+  const [companyEmail, setCompanyEmail] = useState('')
+  const [adminUsername, setAdminUsername] = useState('')
+  const [adminEmail, setAdminEmail] = useState('')
+  const [adminPassword, setAdminPassword] = useState('')
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     try {
-      const response = await axios.post('https://profitvision.geolea.com/impact/api/login', {
+      const response = await axios.post(endpoints.login, {
         username: username,
         password: password,
       }) 
@@ -55,26 +61,40 @@ const Home = () => {
   const handleCreateAccount = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://profitvision.geolea.com/impact/api/create-account', {
-        username: newuserusername, // Change key to 'username'
-      password: newuserpassword,
-      });
+      const payload = {
+        company_name: companyName,
+        email: companyEmail,
+        admin_user: {
+          username: adminUsername,
+          email: adminEmail,
+          password: adminPassword,
+        },
+      }
 
-      if (response.data.success) {
-        alert('Account created successfully! You can now log in.');
-        setShowCreateAccountModal(false); // Close the modal
+      const response = await axios.post(endpoints.createAccount, payload)
+
+      if (response.data?.success) {
+        alert('Account created successfully! You can now log in.')
+        setShowCreateAccountModal(false)
+        // reset form
+        setCompanyName('')
+        setCompanyEmail('')
+        setAdminUsername('')
+        setAdminEmail('')
+        setAdminPassword('')
       } else {
-        alert('Error creating account. Please try again.');
+        alert(response.data?.message || 'Error creating account. Please try again.')
       }
     } catch (error) {
       console.error('Error during account creation:', error);
+      alert(error.response?.data?.message || 'Error creating account. Please try again.')
     }
   };
 
   useEffect(() => {
     const checkTrialStatus = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/check-trial-status');
+        const response = await axios.get(endpoints.checkTrialStatus);
         if (response.data.isActive) {
           console.log(response.data.message); // Trial is still active or license is valid
           setIsTrialActive(true);
@@ -116,20 +136,49 @@ const Home = () => {
     <form onSubmit={handleCreateAccount}>
       <div className="input-box">
         <input
-          type="text" // Corrected the input type from 'username' to 'text'
-          placeholder="Username"
+          type="text"
+          placeholder="Company Name"
           required
-          value={newuserusername}
-          onChange={(e) => setnewuserUsername(e.target.value)} // Use the correct state updater function
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+        />
+      </div>
+      {/* Removed Company Code field */}
+      <div className="input-box">
+        <input
+          type="email"
+          placeholder="Company Email"
+          required
+          value={companyEmail}
+          onChange={(e) => setCompanyEmail(e.target.value)}
+        />
+      </div>
+      <hr />
+      <div className="input-box">
+        <input
+          type="text"
+          placeholder="Admin Username"
+          required
+          value={adminUsername}
+          onChange={(e) => setAdminUsername(e.target.value)}
+        />
+      </div>
+      <div className="input-box">
+        <input
+          type="email"
+          placeholder="Admin Email"
+          required
+          value={adminEmail}
+          onChange={(e) => setAdminEmail(e.target.value)}
         />
       </div>
       <div className="input-box">
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Admin Password"
           required
-          value={newuserpassword}
-          onChange={(e) => setnewuserPassword(e.target.value)} // Use the correct state updater function
+          value={adminPassword}
+          onChange={(e) => setAdminPassword(e.target.value)}
         />
       </div>
       <button type="submit">Create Account</button>

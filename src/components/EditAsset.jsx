@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Form, Button } from 'react-bootstrap'
+import { endpoints } from '../config/api'
 
 const EditAsset = ({ assetId }) => {
   const [assetData, setAssetData] = useState({ assetName: '', assetType: '', location: '' })
@@ -8,7 +9,7 @@ const EditAsset = ({ assetId }) => {
   useEffect(() => {
     const fetchAssetDetails = async () => {
       try {
-        const response = await axios.get(`https://profitvision.geolea.com/impact/api/assets/${assetId}`)
+        const response = await axios.get(endpoints.assetById(assetId))
         setAssetData(response.data)
       } catch (error) {
         console.error('Error fetching asset details:', error)
@@ -20,7 +21,7 @@ const EditAsset = ({ assetId }) => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`https://profitvision.geolea.com/impact/api/assets/${assetId}`, assetData)
+      await axios.put(endpoints.assetById(assetId), assetData)
       // Show success message or redirect to asset list
     } catch (error) {
       console.error('Error updating asset:', error)

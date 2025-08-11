@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import * as XLSX from 'xlsx'
 import { useNavigate } from 'react-router-dom'
+import { endpoints } from '../../../config/api'
 
 const AddAsset = () => {
   const [assetData, setAssetData] = useState({
@@ -36,7 +37,7 @@ const AddAsset = () => {
     // Fetch asset categories when the component mounts
     const fetchAssetCategories = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/categories')
+        const response = await axios.get(endpoints.categories)
         setAssetCategories(response.data)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
@@ -48,7 +49,7 @@ const AddAsset = () => {
   useEffect(() => {
     const checkTrialStatus = async () => {
       try {
-        const response = await axios.get('https://profitvision.geolea.com/impact/api/check-trial-status');
+        const response = await axios.get(endpoints.checkTrialStatus);
         if (response.data.isActive) {
           console.log(response.data.message); // Trial is still active or license is valid
           setIsTrialActive(true);
@@ -502,10 +503,7 @@ const AddAsset = () => {
       // Loop through each asset type and make a request to the corresponding endpoint
       const requests = Object.entries(assetsByType).map(async ([assetType, assets]) => {
         try {
-          const response = await axios.post(
-            `https://profitvision.geolea.com/impact/api/addMultipleAssets/${assetType}`,
-            assets,
-          )
+          const response = await axios.post(endpoints.addMultipleAssets(assetType), assets)
           if (response.data.success) {
             // Handle success as needed
           } else {
@@ -558,7 +556,7 @@ const AddAsset = () => {
               formData.append(key, value)
             }
           })
-          const response = await axios.post('https://profitvision.geolea.com/impact/api/addAsset', formData, {
+          const response = await axios.post(endpoints.addAsset, formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -583,7 +581,7 @@ const AddAsset = () => {
             formData.append(key, value)
           }
         })
-        const response = await axios.post('https://profitvision.geolea.com/impact/api/addAsset', formData, {
+        const response = await axios.post(endpoints.addAsset, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
