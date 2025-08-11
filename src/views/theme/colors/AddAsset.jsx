@@ -122,7 +122,6 @@ const AddAsset = () => {
           annualrentalincome: 'ANNUAL RENTAL INCOME',
           land_description: 'LAND DESCRIPTION',
           mode_of_acquisition: 'MODE OF ACQUISITION',
-          county: 'COUNTY',
           nearest_town_location: 'NEAREST TOWN',
           gps: 'GPS',
           polygon: 'POLYGON',
@@ -145,7 +144,6 @@ const AddAsset = () => {
           annual_rental_income: 'ANNUAL RENTAL INCOME OF LAND',
           tag: 'TAG',
           unitValue: 'UNIT VALUE',
-          status: 'STATUS',
           unitPrice: 'UNIT PRICE',
           currentValue: 'CURRENT VALUE',
           // Add more fields based on your requirements

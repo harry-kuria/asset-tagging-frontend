@@ -109,7 +109,7 @@ const ViewReport = () => {
       // Filter reportData based on the selected institution
       const filteredReportData = {}
       for (const assetType in reportData) {
-        if (reportData.hasOwnProperty(assetType)) {
+        if (Object.prototype.hasOwnProperty.call(reportData, assetType)) {
           const assetsOfType = reportData[assetType].filter(
             (asset) => asset.institutionName === filters.institutionName,
           )
@@ -124,7 +124,7 @@ const ViewReport = () => {
       const summaryData = []
 
       for (const assetType in filteredReportData) {
-        if (filteredReportData.hasOwnProperty(assetType)) {
+        if (Object.prototype.hasOwnProperty.call(filteredReportData, assetType)) {
           const assets = filteredReportData[assetType]
           const totalMarketValue = assets.reduce((sum, asset) => sum + (asset.marketValue || 0), 0)
           summaryData.push([assetType, totalMarketValue.toFixed(2)])
@@ -136,7 +136,7 @@ const ViewReport = () => {
 
       // Generate sheets for each asset type
       for (const assetType in filteredReportData) {
-        if (filteredReportData.hasOwnProperty(assetType)) {
+        if (Object.prototype.hasOwnProperty.call(filteredReportData, assetType)) {
           const assets = filteredReportData[assetType]
 
           console.log(`Asset Type: ${assetType}, Number of Assets: ${assets.length}`)
@@ -271,7 +271,7 @@ const ViewReport = () => {
       let grandTotalMarketValue = 0
 
       for (const assetType of customOrder) {
-        if (assetsByType.hasOwnProperty(assetType)) {
+        if (Object.prototype.hasOwnProperty.call(assetsByType, assetType)) {
           let totalMarketValue = 0
           if (assetType !== 'land') {
             totalMarketValue = assetsByType[assetType].reduce(

@@ -16,7 +16,7 @@
   "scripts": {
     "build": "react-scripts build",
     "eject": "react-scripts eject",
-    "lint": "eslint \"src/**/*.js\"",
+    "lint": "eslint \"src/**/*.{js,jsx}\"",
     "start": "react-scripts start",
     "electron": "electron .",
     "pack": "electron-builder --dir",
