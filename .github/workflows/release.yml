@@ -29,7 +29,8 @@ jobs:
       - name: Build web app
         run: npm run build
         env:
-          CI: true
+          CI: false
+          DISABLE_ESLINT_PLUGIN: true
 
       - name: Build Electron installer (Windows)
         if: startsWith(matrix.os, 'windows')

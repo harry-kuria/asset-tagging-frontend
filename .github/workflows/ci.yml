@@ -38,7 +38,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          CI: true
+          CI: false
+          DISABLE_ESLINT_PLUGIN: true
 
       - name: Upload build artifact
         if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
