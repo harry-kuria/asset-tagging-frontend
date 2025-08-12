@@ -72,7 +72,9 @@
         "tar.gz"
       ],
       "maintainer": "Moowi Group <support@moowigroup.com>",
+      "packageName": "moowi-installer",
       "executableName": "moowi-installer",
+      "vendor": "Moowi Group",
       "desktop": {
         "Name": "Moowi Installer",
         "Comment": "Moowi Asset Tagging",
