@@ -1,9 +1,9 @@
 {
-  "name": "@coreui/coreui-free-react-admin-template",
+  "name": "moowi-installer",
   "version": "4.5.0",
   "description": "CoreUI Free React Admin Template",
   "main": "main.js",
-  "homepage": ".",
+  "homepage": "https://moowigroup.com",
   "bugs": {
     "url": "https://github.com/coreui/coreui-free-react-admin-template/issues"
   },
@@ -72,6 +72,12 @@
         "tar.gz"
       ],
       "maintainer": "Moowi Group <support@moowigroup.com>",
+      "executableName": "moowi-installer",
+      "desktop": {
+        "Name": "Moowi Installer",
+        "Comment": "Moowi Asset Tagging",
+        "Categories": "Utility;"
+      },
       "category": "Utility"
     },
     "publish": [
