@@ -33,15 +33,15 @@ jobs:
           DISABLE_ESLINT_PLUGIN: true
 
       - name: Build Electron installers (Windows)
-        if: startsWith(matrix.os, 'windows')
+        if: runner.os == 'Windows'
         run: npx electron-builder --win nsis portable --publish never
 
       - name: Build Electron installers (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
+        if: runner.os == 'Linux'
         run: npx electron-builder --linux AppImage deb rpm tar.gz --publish never
 
       - name: Build Electron installers (macOS)
-        if: startsWith(matrix.os, 'macos')
+        if: runner.os == 'macOS'
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: npx electron-builder --mac dmg zip --publish never

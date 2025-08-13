@@ -11,8 +11,11 @@ on:
         required: true
 
 jobs:
-  release:
+  release-linux:
+    name: Build and publish (Linux)
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,15 +26,21 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Update package version
+      - name: Update package version and tag
+        id: bump
+        env:
+          NEW_VERSION: ${{ github.event.inputs.version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEW_VERSION=${{ github.event.inputs.version }}
           npm version --no-git-tag-version "$NEW_VERSION"
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git add package.json package-lock.json || true
-          git commit -m "chore(version): bump to v$NEW_VERSION"
-          git tag "v$NEW_VERSION"
+          git commit -m "chore(version): bump to v$NEW_VERSION" || echo "No changes to commit"
+          git tag "v$NEW_VERSION" || echo "Tag exists"
+          git push origin HEAD:main --follow-tags
+          git push origin "v$NEW_VERSION" || true
 
       - name: Install dependencies
         run: npm ci
@@ -42,19 +51,85 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build and publish installers
+      - name: Build and publish installers (Linux)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npx electron-builder --win nsis portable --linux AppImage deb rpm tar.gz --mac dmg zip --publish always
+          npx electron-builder --linux AppImage deb rpm tar.gz --publish always
 
-      - name: Create GitHub Release with notes
+  release-macos:
+    name: Build and publish (macOS)
+    runs-on: macos-latest
+    needs: release-linux
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release-linux.outputs.version }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+        env:
+          CI: false
+          DISABLE_ESLINT_PLUGIN: true
+
+      - name: Build and publish installers (macOS)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npx electron-builder --mac dmg zip --publish always
+
+  release-windows:
+    name: Build and publish (Windows)
+    runs-on: windows-latest
+    needs: release-linux
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release-linux.outputs.version }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+        env:
+          CI: false
+          DISABLE_ESLINT_PLUGIN: true
+
+      - name: Build and publish installers (Windows)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx electron-builder --win nsis portable --publish always
+
+  finalize-release:
+    name: Finalize Release Notes
+    runs-on: ubuntu-latest
+    needs: [release-linux, release-macos, release-windows]
+    steps:
+      - name: Create or update GitHub Release with notes
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.event.inputs.version }}
           name: Moowi Installer v${{ github.event.inputs.version }}
           body: ${{ github.event.inputs.notes }}
-          files: |
-            dist/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
