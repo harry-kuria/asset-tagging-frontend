@@ -1,5 +1,5 @@
 // Fixed API base URL
-export const API_URL = 'http://ec2-54-147-71-214.compute-1.amazonaws.com:5000';
+export const API_URL = 'https://graf.moowigroup.com';
 
 // Mode helpers kept for compatibility (not used when API_URL is fixed)
 export const getCurrentApiMode = () => {
@@ -14,7 +14,7 @@ export const setApiMode = (_mode) => {
 // Endpoints
 export const endpoints = {
   // Auth
-  login: `${API_URL}/login`,
+  login: `${API_URL}/api/login`,
   createAccount: `${API_URL}/create-account`,
   checkTrialStatus: `${API_URL}/check-trial-status`,
   
