@@ -12,7 +12,7 @@ on:
 
 jobs:
   release-linux:
-    name: Build and publish (Linux)
+    name: Build and archive (Linux)
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -68,15 +68,20 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build and publish installers (Linux)
+      - name: Build installers (Linux)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --linux AppImage deb rpm tar.gz --config.extraMetadata.version=${{ steps.bump.outputs.version }} --publish always
+          npx electron-builder --linux AppImage deb rpm tar.gz --config.extraMetadata.version=${{ steps.bump.outputs.version }} --publish never
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-linux
+          path: dist/**/*
 
   release-macos:
-    name: Build and publish (macOS)
+    name: Build and archive (macOS)
     runs-on: macos-latest
     needs: release-linux
     permissions:
@@ -103,16 +108,21 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build and publish installers (macOS)
+      - name: Build installers (macOS)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --mac dmg zip --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish always
+          npx electron-builder --mac dmg zip --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish never
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-macos
+          path: dist/**/*
 
   release-windows:
-    name: Build and publish (Windows)
+    name: Build and archive (Windows)
     runs-on: windows-latest
     needs: release-linux
     permissions:
@@ -139,23 +149,36 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build and publish installers (Windows)
+      - name: Build installers (Windows)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --win nsis portable --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish always
+          npx electron-builder --win nsis portable --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish never
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-windows
+          path: dist/**/*
 
   finalize-release:
-    name: Finalize Release Notes
+    name: Publish Release with assets
     runs-on: ubuntu-latest
     needs: [release-linux, release-macos, release-windows]
     steps:
-      - name: Create or update GitHub Release with notes
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-all
+          merge-multiple: true
+
+      - name: Create or update GitHub Release with notes and assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          name: Moowi Installer v${{ github.event.inputs.version }}
+          tag_name: v${{ needs.release-linux.outputs.version }}
+          name: Moowi Installer v${{ needs.release-linux.outputs.version }}
           body: ${{ github.event.inputs.notes }}
+          files: |
+            dist-all/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
