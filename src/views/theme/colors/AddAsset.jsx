@@ -70,6 +70,77 @@ const AddAsset = () => {
     const { name, value } = e.target
     setAssetData({ ...assetData, [name]: value })
   }
+
+  const handleDownloadTemplate = () => {
+    const headers = [
+      'TYPE',
+      'NAME',
+      'SERIAL NUMBER',
+      'DESCRIPTION',
+      'PRICE',
+      'MARKET VALUE',
+      'MANUFACTURER',
+      'MODEL NUMBER',
+      'LOCATION',
+      'STATUS',
+      'BARCODE',
+      'INSTITUTION',
+      'DEPARTMENT',
+      'FUNCTIONAL AREA',
+      'VEHICLE REG NO',
+      'OWNERSHIP',
+      'INSTITUTION NUMBER',
+      'NEAREST TOWN',
+      'STREET',
+      'COUNTY',
+      'LRNO',
+      'SIZE',
+      'OWNERSHIP STATUS',
+      'SOURCE OF FUNDS',
+      'MODE OF ACQUISITION',
+      'BUILDING TYPE',
+      'DESIGNATED USE',
+      'NO OF FLOORS',
+      'AREA',
+      'VALUATION',
+      'ANNUAL DEPRECIATION',
+      'ESTIMATED USEFUL LIFE',
+      'ACCUMULATED DEPRECIATION RATE',
+      'NETBOOK VALUE',
+      'ANNUAL RENTAL INCOME',
+      'LAND DESCRIPTION',
+      'MODE OF ACQUISITION',
+      'NEAREST TOWN',
+      'GPS',
+      'POLYGON',
+      'LR NO',
+      'OWNERSHIP DOCUMENT',
+      'OWNERSHIP DETAILS',
+      'SIZE',
+      'OWNERSHIP STATUS',
+      'ACQUISITION DATE',
+      'REGISTRATION DATE',
+      'DISPUTED/UNDISPUTED',
+      'ENCUMBERANCES',
+      'PLANNED/UNPLANNED',
+      'PURPOSE',
+      'SURVEYED/NOT SURVEYED',
+      'ACQUISITION AMOUNT',
+      'FAIR VALUE',
+      'DISPOSAL DATE',
+      'DISPOSAL VALUE',
+      'ANNUAL RENTAL INCOME OF LAND',
+      'TAG',
+      'UNIT VALUE',
+      'UNIT PRICE',
+      'CURRENT VALUE',
+    ]
+    const ws = XLSX.utils.aoa_to_sheet([headers])
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Template')
+    XLSX.writeFile(wb, 'asset_import_template.xlsx')
+  }
+
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -371,98 +442,6 @@ const AddAsset = () => {
             if (header === 'ANNUAL RENTAL INCOME') {
               // Extract the asset type from the value in the "TYPE" column
               assetObject['annualrentalincome'] = extractAssetType(row[index])
-            }
-            if (header === 'LAND DESCRIPTION') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['land_description'] = extractAssetType(row[index])
-            }
-            if (header === 'MODE OF ACQUISITION') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['mode_of_acquisition'] = extractAssetType(row[index])
-            }
-            if (header === 'COUNTY') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['county'] = extractAssetType(row[index])
-            }
-            if (header === 'NEAREST TOWN') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['nearest_town_location'] = extractAssetType(row[index])
-            }
-            if (header === 'GPS') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['gps'] = extractAssetType(row[index])
-            }
-            if (header === 'POLYGON') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['polygon'] = extractAssetType(row[index])
-            }
-            if (header === 'LR NO') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['lr_certificate_no'] = extractAssetType(row[index])
-            }
-            if (header === 'OWNERSHIP DOCUMENT') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['document_of_ownership'] = extractAssetType(row[index])
-            }
-            if (header === 'OWNERSHIP DETAILS') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['ownership_details'] = extractAssetType(row[index])
-            }
-            if (header === 'SIZE') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['size_ha'] = extractAssetType(row[index])
-            }
-            if (header === 'OWNERSHIP STATUS') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['ownership_status'] = extractAssetType(row[index])
-            }
-            if (header === 'ACQUISITION DATE') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['acquisition_date'] = extractAssetType(row[index])
-            }
-            if (header === 'REGISTRATION DATE') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['registration_date'] = extractAssetType(row[index])
-            }
-            if (header === 'DISPUTED/UNDISPUTED') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['disputed_undisputed'] = extractAssetType(row[index])
-            }
-            if (header === 'ENCUMBERANCES') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['encumbrances'] = extractAssetType(row[index])
-            }
-            if (header === 'PLANNED/UNPLANNED') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['planned_unplanned'] = extractAssetType(row[index])
-            }
-            if (header === 'PURPOSE') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['purpose_use_of_land'] = extractAssetType(row[index])
-            }
-            if (header === 'SURVEYED/NOT SURVEYED') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['surveyed_not_surveyed'] = extractAssetType(row[index])
-            }
-            if (header === 'ACQUISITION AMOUNT') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['acquisition_amount'] = extractAssetType(row[index])
-            }
-            if (header === 'FAIR VALUE') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['fair_value_ministry_of_lands'] = extractAssetType(row[index])
-            }
-            if (header === 'DISPOSAL DATE') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['disposal_date_change_of_use_date'] = extractAssetType(row[index])
-            }
-            if (header === 'DISPOSAL VALUE') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['disposal_value'] = extractAssetType(row[index])
-            }
-            if (header === 'ANNUAL RENTAL INCOME OF LAND') {
-              // Extract the asset type from the value in the "TYPE" column
-              assetObject['annual_rental_income'] = extractAssetType(row[index])
             } else {
               const columnName = dynamicMapping[header] || header
               assetObject[columnName] = row[index]
@@ -497,7 +476,6 @@ const AddAsset = () => {
         acc[assetType].push(asset)
         return acc
       }, {})
-
       // Loop through each asset type and make a request to the corresponding endpoint
       const requests = Object.entries(assetsByType).map(async ([assetType, assets]) => {
         try {
@@ -633,7 +611,12 @@ const AddAsset = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <h2 className="mb-4">Add New Asset</h2>
+      <h2 className="mb-2">Add New Asset</h2>
+      <div className="mb-3">
+        <Button variant="link" size="sm" onClick={handleDownloadTemplate}>
+          Download Template
+        </Button>
+      </div>
       {isTrialActive && (
       <Row className="mb-3">
         <Form.Group as={Col} md="6" controlId="excelFile">
