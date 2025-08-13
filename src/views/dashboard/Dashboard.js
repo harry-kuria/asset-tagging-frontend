@@ -141,6 +141,19 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <Container fluid>
+        <Row className="mb-2">
+          <Col>
+            <small className="text-muted">
+              {(() => {
+                const user = JSON.parse(localStorage.getItem('currentUser') || 'null')
+                const company = JSON.parse(localStorage.getItem('currentCompany') || 'null')
+                const username = user?.username || user?.email || 'User'
+                const companyName = company?.company_name || 'Company'
+                return `Welcome, ${username} — ${companyName}`
+              })()}
+            </small>
+          </Col>
+        </Row>
         <Row className="mb-4">
           <Col>
             <h2>System Overview</h2>

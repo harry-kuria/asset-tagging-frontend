@@ -17,7 +17,9 @@ const getUserRoles = () => {
 
 const hasRole = (role) => {
   const userRoles = getUserRoles()
-  return userRoles && userRoles[role] === 1
+  // If roles are not set yet, default to showing items
+  if (!userRoles || Object.keys(userRoles).length === 0) return true
+  return userRoles[role] === 1
 }
 
 const _nav = [
@@ -40,14 +42,14 @@ const _nav = [
     name: 'Create Users',
     to: '/adduser',
     icon: <CIcon icon={cilUserFollow} customClassName="nav-icon" />,
-    hidden: !hasRole('userManagement'), // Hide if user does not have 'userManagement' role
+    hidden: !hasRole('userManagement'),
   },
   {
     component: CNavItem,
     name: 'View Users',
     to: '/users',
     icon: <CIcon icon={cilZoom} customClassName="nav-icon" />,
-    hidden: !hasRole('assetManagement'), // Hide if user does not have 'assetManagement' role
+    hidden: !hasRole('assetManagement'),
   },
   {
     component: CNavTitle,
@@ -58,7 +60,7 @@ const _nav = [
     name: 'Create Assets',
     to: '/add_asset',
     icon: <CIcon icon={cilCloudUpload} customClassName="nav-icon" />,
-    hidden: !hasRole('addMultipleAssets'), // Hide if user does not have 'addMultipleAssets' role
+    hidden: !hasRole('addMultipleAssets'),
   },
   {
     component: CNavTitle,
@@ -69,7 +71,7 @@ const _nav = [
     name: 'Generate Asset Barcodes',
     to: '/encode_multiple',
     icon: <CIcon icon={cilBarcode} customClassName="nav-icon" />,
-    hidden: !hasRole('encodeAssets'), // Hide if user does not have 'encodeAssets' role
+    hidden: !hasRole('encodeAssets'),
   },
   {
     component: CNavTitle,
@@ -80,7 +82,7 @@ const _nav = [
     name: 'View Reports',
     to: '/reports',
     icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
-    hidden: !hasRole('viewReports'), // Hide if user does not have 'viewReports' role
+    hidden: !hasRole('viewReports'),
   },
 ]
 

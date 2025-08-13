@@ -45,6 +45,77 @@ const AddAsset = () => {
     const { name, value } = e.target
     setAssetData({ ...assetData, [name]: value })
   }
+
+  const handleDownloadTemplate = () => {
+    const headers = [
+      'TYPE',
+      'NAME',
+      'SERIAL NUMBER',
+      'DESCRIPTION',
+      'PRICE',
+      'MARKET VALUE',
+      'MANUFACTURER',
+      'MODEL NUMBER',
+      'LOCATION',
+      'STATUS',
+      'BARCODE',
+      'INSTITUTION',
+      'DEPARTMENT',
+      'FUNCTIONAL AREA',
+      'VEHICLE REG NO',
+      'OWNERSHIP',
+      'INSTITUTION NUMBER',
+      'NEAREST TOWN',
+      'STREET',
+      'COUNTY',
+      'LRNO',
+      'SIZE',
+      'OWNERSHIP STATUS',
+      'SOURCE OF FUNDS',
+      'MODE OF ACQUISITION',
+      'BUILDING TYPE',
+      'DESIGNATED USE',
+      'NO OF FLOORS',
+      'AREA',
+      'VALUATION',
+      'ANNUAL DEPRECIATION',
+      'ESTIMATED USEFUL LIFE',
+      'ACCUMULATED DEPRECIATION RATE',
+      'NETBOOK VALUE',
+      'ANNUAL RENTAL INCOME',
+      'LAND DESCRIPTION',
+      'MODE OF ACQUISITION',
+      'NEAREST TOWN',
+      'GPS',
+      'POLYGON',
+      'LR NO',
+      'OWNERSHIP DOCUMENT',
+      'OWNERSHIP DETAILS',
+      'SIZE',
+      'OWNERSHIP STATUS',
+      'ACQUISITION DATE',
+      'REGISTRATION DATE',
+      'DISPUTED/UNDISPUTED',
+      'ENCUMBERANCES',
+      'PLANNED/UNPLANNED',
+      'PURPOSE',
+      'SURVEYED/NOT SURVEYED',
+      'ACQUISITION AMOUNT',
+      'FAIR VALUE',
+      'DISPOSAL DATE',
+      'DISPOSAL VALUE',
+      'ANNUAL RENTAL INCOME OF LAND',
+      'TAG',
+      'UNIT VALUE',
+      'UNIT PRICE',
+      'CURRENT VALUE',
+    ]
+    const ws = XLSX.utils.aoa_to_sheet([headers])
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Template')
+    XLSX.writeFile(wb, 'asset_import_template.xlsx')
+  }
+
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -598,12 +669,22 @@ const AddAsset = () => {
 
   return (
     <Form onSubmit={handleSubmit}>
-      <h2 className="mb-4">Add New Asset</h2>
+      <h2 className="mb-2">Add New Asset</h2>
+      <div className="mb-3">
+        <Button variant="link" size="sm" onClick={handleDownloadTemplate}>
+          Download Template
+        </Button>
+      </div>
       <Row className="mb-3">
         <Form.Group as={Col} md="6" controlId="excelFile">
           <Form.Label>Import Excel File</Form.Label>
           <Form.Control type="file" accept=".xlsx" onChange={handleFileChange} />
         </Form.Group>
+        <Col md="6" className="d-flex align-items-end justify-content-end">
+          <Button type="button" variant="outline-primary" onClick={handleDownloadTemplate}>
+            Download Template
+          </Button>
+        </Col>
 
         {/* Button to add imported assets to the database */}
         {assetsArray.length > 0 && (

@@ -33,13 +33,23 @@ const Home = () => {
         password: password,
       }) 
 
-      const { success, roles = [], token, message } = response.data || {}
+      const { success, roles = [], token, message, data } = response.data || {}
+      const nested = data || {}
+      const authToken = token || nested.token
+      const currentUser = nested.user || response.data?.user
+      const currentCompany = nested.company || response.data?.company
       const isOk = success === true || response.status === 200
       if (isOk) {
         console.log('Authentication successful. Response data:', response.data)
         localStorage.setItem('userRoles', JSON.stringify(roles || []))
-        if (token) {
-          localStorage.setItem('authToken', token)
+        if (authToken) {
+          localStorage.setItem('authToken', authToken)
+        }
+        if (currentUser) {
+          localStorage.setItem('currentUser', JSON.stringify(currentUser))
+        }
+        if (currentCompany) {
+          localStorage.setItem('currentCompany', JSON.stringify(currentCompany))
         }
         navigate('/dashboard', { state: { userRoles: roles || [] } })
       } else {
