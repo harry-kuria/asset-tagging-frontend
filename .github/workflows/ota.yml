@@ -71,8 +71,9 @@ jobs:
       - name: Build and publish installers (Linux)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --linux AppImage deb rpm tar.gz --publish always
+          npx electron-builder --linux AppImage deb rpm tar.gz --config.extraMetadata.version=${{ steps.bump.outputs.version }} --publish always
 
   release-macos:
     name: Build and publish (macOS)
@@ -106,8 +107,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --mac dmg zip --publish always
+          npx electron-builder --mac dmg zip --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish always
 
   release-windows:
     name: Build and publish (Windows)
@@ -140,8 +142,9 @@ jobs:
       - name: Build and publish installers (Windows)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --win nsis portable --publish always
+          npx electron-builder --win nsis portable --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish always
 
   finalize-release:
     name: Finalize Release Notes
