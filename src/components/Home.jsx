@@ -33,23 +33,17 @@ const Home = () => {
         password: password,
       }) 
 
-      if (response.data.success) {
+      const { success, roles = [], token, message } = response.data || {}
+      const isOk = success === true || response.status === 200
+      if (isOk) {
         console.log('Authentication successful. Response data:', response.data)
-
-        // Check the structure of the response data
-        const userRoles = response.data.roles || []
-        console.log('User roles:', userRoles)
-
-        localStorage.setItem('userRoles', JSON.stringify(userRoles))
-
-        // Make sure userRoles is set before navigating
-        if (userRoles && Object.keys(userRoles).length > 0) {
-          navigate('/dashboard', { state: { userRoles: response.data.roles } })
-        } else {
-          alert('Invalid credentials. Please try again.')
+        localStorage.setItem('userRoles', JSON.stringify(roles || []))
+        if (token) {
+          localStorage.setItem('authToken', token)
         }
+        navigate('/dashboard', { state: { userRoles: roles || [] } })
       } else {
-        alert('Invalid credentials. Please try again.')
+        alert(message || 'Invalid credentials. Please try again.')
       }
     } catch (error) {
       console.error('Error during login:', error)
