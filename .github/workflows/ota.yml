@@ -30,23 +30,34 @@ jobs:
           node-version: 18
           cache: 'npm'
 
-      - name: Update package version and tag
+      - name: Update package version (local only)
         id: bump
         env:
           NEW_VERSION: ${{ github.event.inputs.version }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm version --no-git-tag-version "$NEW_VERSION"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git add package.json package-lock.json || true
-          git commit -m "chore(version): bump to v$NEW_VERSION" || echo "No changes to commit"
-          git tag "v$NEW_VERSION" || echo "Tag exists"
-          # Push tags; ignore failures due to permissions/branch protections
-          git push origin --tags || true
-          # Attempt to push the commit to default branch but don't fail the workflow if blocked
-          git push origin HEAD:${{ github.ref_name }} || true
+
+      - name: Create tag via GitHub API
+        uses: actions/github-script@v7
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.version }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const version = process.env.NEW_VERSION
+            const tag = `v${version}`
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${tag}`,
+                sha: context.sha,
+              })
+              core.info(`Created tag ${tag}`)
+            } catch (e) {
+              core.warning(`Tag create skipped: ${e.message}`)
+            }
 
       - name: Install dependencies
         run: npm ci
