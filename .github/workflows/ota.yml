@@ -14,11 +14,15 @@ jobs:
   release-linux:
     name: Build and publish (Linux)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       version: ${{ steps.bump.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,8 +43,10 @@ jobs:
           git add package.json package-lock.json || true
           git commit -m "chore(version): bump to v$NEW_VERSION" || echo "No changes to commit"
           git tag "v$NEW_VERSION" || echo "Tag exists"
-          git push origin HEAD:main --follow-tags
-          git push origin "v$NEW_VERSION" || true
+          # Push tags; ignore failures due to permissions/branch protections
+          git push origin --tags || true
+          # Attempt to push the commit to default branch but don't fail the workflow if blocked
+          git push origin HEAD:${{ github.ref_name }} || true
 
       - name: Install dependencies
         run: npm ci
@@ -61,11 +67,14 @@ jobs:
     name: Build and publish (macOS)
     runs-on: macos-latest
     needs: release-linux
+    permissions:
+      contents: write
     steps:
       - name: Checkout tag
         uses: actions/checkout@v4
         with:
           ref: v${{ needs.release-linux.outputs.version }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -93,11 +102,14 @@ jobs:
     name: Build and publish (Windows)
     runs-on: windows-latest
     needs: release-linux
+    permissions:
+      contents: write
     steps:
       - name: Checkout tag
         uses: actions/checkout@v4
         with:
           ref: v${{ needs.release-linux.outputs.version }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
