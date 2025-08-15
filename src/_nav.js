@@ -7,6 +7,7 @@ import {
   cilCloudUpload,
   cilBarcode,
   cilDrop,
+  cilCloudDownload,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -83,6 +84,12 @@ const _nav = [
     to: '/reports',
     icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
     hidden: !hasRole('viewReports'),
+  },
+  {
+    component: CNavItem,
+    name: 'Check updates',
+    onClick: () => window.moowiUpdater && window.moowiUpdater.checkForUpdates(),
+    icon: <CIcon icon={cilCloudDownload} customClassName="nav-icon" />,
   },
 ]
 
