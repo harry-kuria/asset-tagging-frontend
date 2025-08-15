@@ -38,9 +38,12 @@ const AddAsset = () => {
     const fetchAssetCategories = async () => {
       try {
         const response = await axios.get(endpoints.categories)
-        setAssetCategories(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setAssetCategories(data)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
+        setAssetCategories([])
       }
     }
     fetchAssetCategories()
@@ -655,11 +658,11 @@ const AddAsset = () => {
             required
           >
             <option value="">Select Asset Type</option>
-            {assetCategories.map((category) => (
+            {Array.isArray(assetCategories) ? assetCategories.map((category) => (
               <option key={category.id} value={category.category_name}>
                 {category.category_name}
               </option>
-            ))}
+            )) : null}
           </Form.Control>
         </Form.Group>
         )}
