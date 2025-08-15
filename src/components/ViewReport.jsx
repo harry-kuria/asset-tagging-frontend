@@ -190,10 +190,13 @@ const ViewReport = () => {
     const fetchAssetCategories = async () => {
       try {
         const response = await axios.get(endpoints.categories)
-        setAssetCategories(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setAssetCategories(data)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
         showApiError(error)
+        setAssetCategories([])
       }
     }
 
@@ -204,10 +207,13 @@ const ViewReport = () => {
     const fetchManufacturerCategories = async () => {
       try {
         const manufacturerResponse = await axios.get(endpoints.manufacturers)
-        setManufacturers(manufacturerResponse.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(manufacturerResponse.data) ? manufacturerResponse.data : manufacturerResponse.data?.data || []
+        setManufacturers(data)
       } catch (error) {
         console.error('Error fetching manufacturer categories:', error)
         showApiError(error)
+        setManufacturers([])
       }
     }
 
@@ -222,37 +228,44 @@ const ViewReport = () => {
     const fetchInstitutions = async () => {
       try {
         const response = await axios.get(endpoints.institutions)
-        setInstitutionList(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setInstitutionList(data)
       } catch (error) {
         console.error('Error fetching institutions:', error)
         showApiError(error)
+        setInstitutionList([])
       }
     }
     const fetchDepartments = async () => {
       try {
         const response = await axios.get(endpoints.departments)
-        setDepartments(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setDepartments(data)
       } catch (error) {
         console.error('Error fetching departments:', error)
         showApiError(error)
+        setDepartments([])
       }
     }
 
     const fetchFunctionalAreas = async () => {
       try {
         const response = await axios.get(endpoints.functionalAreas)
-        setFunctionalAreas(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setFunctionalAreas(data)
       } catch (error) {
         console.error('Error fetching functional areas:', error)
         showApiError(error)
+        setFunctionalAreas([])
       }
     }
 
     fetchInstitutions()
     fetchDepartments()
     fetchFunctionalAreas()
-
-    fetchInstitutions()
   }, [])
 
   const generatePDFReport = async (assetsByType) => {

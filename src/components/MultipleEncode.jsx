@@ -94,34 +94,42 @@ const MultipleEncode = () => {
     const fetchInstitutions = async () => {
       try {
         const response = await axios.get(endpoints.institutions)
-        setInstitutionList(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setInstitutionList(data)
       } catch (error) {
         console.error('Error fetching institutions:', error)
         showApiError(error)
+        setInstitutionList([])
       }
     }
     const fetchDepartments = async () => {
       try {
         const response = await axios.get(endpoints.departments)
-        setDepartments(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setDepartments(data)
       } catch (error) {
         console.error('Error fetching departments:', error)
         showApiError(error)
+        setDepartments([])
       }
     }
     const fetchFunctionalAreas = async () => {
       try {
         const response = await axios.get(endpoints.functionalAreas)
-        setFunctionalAreas(response.data)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setFunctionalAreas(data)
       } catch (error) {
         console.error('Error fetching functional areas:', error)
         showApiError(error)
+        setFunctionalAreas([])
       }
     }
     fetchInstitutions()
     fetchDepartments()
     fetchFunctionalAreas()
-    fetchInstitutions()
   }, [])
 
   useEffect(() => {

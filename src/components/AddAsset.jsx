@@ -34,10 +34,14 @@ const AddAsset = () => {
     // Fetch asset categories when the component mounts
     const fetchAssetCategories = async () => {
       try {
-        const response = await endpoints.categories()
-        setAssetCategories(response.data)
+        const response = await axios.get(endpoints.categories)
+        // Ensure we have an array of data
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setAssetCategories(data)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
+        showApiError(error)
+        setAssetCategories([])
       }
     }
     fetchAssetCategories()

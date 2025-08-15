@@ -53,7 +53,7 @@ export const endpoints = {
   userInfo: `${API_URL}/user/info`,
   notifications: `${API_URL}/notifications`,
   recentActivities: `${API_URL}/recent-activities`,
-  dashboardStats: `${API_URL}/dashboard/stats`,
+  dashboardStats: `${API_URL}/api/dashboard/stats`,
   assetStats: `${API_URL}/assets/stats`,
   userStats: `${API_URL}/users/stats`,
   barcodeStats: `${API_URL}/barcodes/stats`,
