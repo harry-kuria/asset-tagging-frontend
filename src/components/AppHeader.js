@@ -30,9 +30,18 @@ const AppHeader = () => {
     navigate('/')
   }
 
+  const handleCheckForUpdates = () => {
+    if (window.moowiUpdater) {
+      window.moowiUpdater.checkForUpdates()
+    }
+  }
+
   return (
     <CHeader position="sticky" className="mb-4">
-      <CContainer fluid className="d-flex justify-content-end">
+      <CContainer fluid className="d-flex justify-content-end gap-2">
+        <CButton color="secondary" variant="outline" size="sm" onClick={handleCheckForUpdates}>
+          Check updates
+        </CButton>
         <CButton color="danger" variant="outline" size="sm" onClick={handleLogout}>
           Logout
         </CButton>
