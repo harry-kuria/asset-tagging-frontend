@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-publish:
-    name: Build and publish installers (${{ matrix.os }})
+  build:
+    name: Build installers (${{ matrix.os }})
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -34,16 +34,58 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build and publish (Windows)
+      - name: Build Electron installers (Windows)
         if: runner.os == 'Windows'
-        run: npx electron-builder --win nsis msi --publish always
+        run: npx electron-builder --win nsis msi --publish never
 
-      - name: Build and publish (Linux)
+      - name: Build Electron installers (Linux)
         if: runner.os == 'Linux'
-        run: npx electron-builder --linux deb --publish always
+        run: npx electron-builder --linux deb --publish never
 
-      - name: Build and publish (macOS)
+      - name: Build Electron installers (macOS)
         if: runner.os == 'macOS'
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npx electron-builder --mac dmg zip pkg --publish always 
+        run: npx electron-builder --mac dmg zip pkg --publish never
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ runner.os }}
+          path: |
+            dist/*.yml
+            dist/*.exe
+            dist/*.msi
+            dist/*.dmg
+            dist/*-mac-*.zip
+            dist/*.pkg
+            dist/*.deb
+            dist/*.blockmap
+
+  create-release:
+    name: Create GitHub Release and upload installers
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-all
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist-all/*.yml
+            dist-all/*.exe
+            dist-all/*.msi
+            dist-all/*.dmg
+            dist-all/*-mac-*.zip
+            dist-all/*.pkg
+            dist-all/*.deb
+            dist-all/*.blockmap
+          draft: false
+          prerelease: false 
