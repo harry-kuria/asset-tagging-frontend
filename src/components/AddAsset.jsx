@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import * as XLSX from 'xlsx'
 import { endpoints } from '../config/api'
+import { showApiError, showApiSuccess } from '../utils/toast'
 
 const AddAsset = () => {
   const [assetData, setAssetData] = useState({
@@ -586,12 +587,12 @@ const AddAsset = () => {
       await Promise.all(requests)
       // Reset the state or perform any other necessary actions
       setAssetsArray([])
-      // Display a success alert
-      alert('Assets added to the database successfully!')
+      // Display a success toast
+      showApiSuccess('Assets added to the database successfully!')
     } catch (error) {
       console.error('Error adding assets:', error)
-      // Display an error alert for any unexpected errors
-      alert('An unexpected error occurred. Please try again.')
+      // Display an error toast for any unexpected errors
+      showApiError(error)
     }
   }
   const handleSubmit = async (e) => {
@@ -619,8 +620,8 @@ const AddAsset = () => {
             console.error('Failed to add asset. Please try again.')
           }
         }
-        // Display a success alert
-        alert('Assets added successfully!')
+        // Display a success toast
+        showApiSuccess('Assets added successfully!')
       } else {
         // Adding a single asset via the form
         const dateObject = new Date(assetData.purchaseDate)
@@ -654,16 +655,16 @@ const AddAsset = () => {
             functionalArea: '',
             logo: null,
           })
-          // Display a success alert
-          alert('Asset added successfully!')
+          // Display a success toast
+          showApiSuccess('Asset added successfully!')
         } else {
-          // Display an error alert if the backend indicates a failure
-          alert('Failed to add asset. Please try again.')
+          // Display an error toast if the backend indicates a failure
+          showApiError(new Error('Failed to add asset. Please try again.'))
         }
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('An unexpected error occurred. Please try again.')
+      showApiError(error)
     }
   }
 

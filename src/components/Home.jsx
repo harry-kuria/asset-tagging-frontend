@@ -8,6 +8,7 @@ import { BrowserRouter as Router, Route, Routes,Link } from 'react-router-dom'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { endpoints } from '../config/api'
+import { showApiError, showApiSuccess } from '../utils/toast'
 
 const Home = () => {
   const [username, setUsername] = useState('')
@@ -51,14 +52,16 @@ const Home = () => {
         if (currentCompany) {
           localStorage.setItem('currentCompany', JSON.stringify(currentCompany))
         }
+        showApiSuccess('Login successful!')
         navigate('/dashboard', { state: { userRoles: roles || [] } })
       } else {
-        alert(message || 'Invalid credentials. Please try again.')
+        showApiError(new Error(message || 'Invalid credentials. Please try again.'))
       }
     } catch (error) {
       console.error('Error during login:', error)
       console.log(username)
       console.log(password)
+      showApiError(error)
     }
   }
 
@@ -78,7 +81,7 @@ const Home = () => {
       const response = await axios.post(endpoints.createAccount, payload)
 
       if (response.data?.success) {
-        alert('Account created successfully! You can now log in.')
+        showApiSuccess('Account created successfully! You can now log in.')
         setShowCreateAccountModal(false)
         // reset form
         setCompanyName('')
@@ -87,11 +90,11 @@ const Home = () => {
         setAdminEmail('')
         setAdminPassword('')
       } else {
-        alert(response.data?.message || 'Error creating account. Please try again.')
+        showApiError(new Error(response.data?.message || 'Error creating account. Please try again.'))
       }
     } catch (error) {
       console.error('Error during account creation:', error);
-      alert(error.response?.data?.message || 'Error creating account. Please try again.')
+      showApiError(error)
     }
   };
 

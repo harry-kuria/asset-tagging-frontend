@@ -3,9 +3,8 @@
 import React, { useState } from 'react'
 import { Container, Form, Button } from 'react-bootstrap'
 import axios from 'axios'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import { endpoints } from '../config/api'
+import { showApiError, showApiSuccess } from '../utils/toast'
 
 const AddUserForm = () => {
   const [hasAllRoles, setHasAllRoles] = useState(false)
@@ -57,17 +56,27 @@ const AddUserForm = () => {
 
       console.log(response.data) // Handle the response as needed
 
-      toast.success('User added successfully', {
-        position: 'top-right',
-        autoClose: 3000, // Close the toast after 3000 milliseconds (3 seconds)
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      })
+      if (response.data?.success) {
+        showApiSuccess('User added successfully!')
+        // Reset form
+        setUser({
+          username: '',
+          password: '',
+          roles: {
+            userManagement: false,
+            assetManagement: false,
+            encodeAssets: false,
+            addMultipleAssets: false,
+            viewReports: false,
+            printReports: false,
+          },
+        })
+      } else {
+        showApiError(new Error(response.data?.message || 'Failed to add user'))
+      }
     } catch (error) {
       console.error('Error adding user:', error)
+      showApiError(error)
     }
   }
 
@@ -150,7 +159,6 @@ const AddUserForm = () => {
         <Button variant="primary" onClick={handleAddUser}>
           Add User
         </Button>
-        <ToastContainer position="top-right" autoClose={3000} />
       </Form>
     </Container>
   )

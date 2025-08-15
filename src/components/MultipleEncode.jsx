@@ -8,6 +8,7 @@ import ReactToPdf from 'react-to-pdf'
 import jsPDF from 'jspdf' // Import jsPDF library
 import 'jspdf-autotable'
 import { endpoints } from '../config/api'
+import { showApiError, showApiSuccess } from '../utils/toast'
 
 const MultipleEncode = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -82,8 +83,10 @@ const MultipleEncode = () => {
       console.log('Asset Details:', assetDetails)
       setGeneratedBarcodes(barcodeTags)
       setAssetDetails(assetDetails) // Assuming you have a state variable to store asset details
+      showApiSuccess('Barcodes generated successfully!')
     } catch (error) {
       console.error('Error generating barcodes:', error)
+      showApiError(error)
     }
   }
 
@@ -94,6 +97,7 @@ const MultipleEncode = () => {
         setInstitutionList(response.data)
       } catch (error) {
         console.error('Error fetching institutions:', error)
+        showApiError(error)
       }
     }
     const fetchDepartments = async () => {
@@ -102,6 +106,7 @@ const MultipleEncode = () => {
         setDepartments(response.data)
       } catch (error) {
         console.error('Error fetching departments:', error)
+        showApiError(error)
       }
     }
     const fetchFunctionalAreas = async () => {
@@ -110,6 +115,7 @@ const MultipleEncode = () => {
         setFunctionalAreas(response.data)
       } catch (error) {
         console.error('Error fetching functional areas:', error)
+        showApiError(error)
       }
     }
     fetchInstitutions()

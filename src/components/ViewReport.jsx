@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { endpoints } from '../config/api'
+import { showApiError, showApiSuccess } from '../utils/toast'
 
 const ViewReport = () => {
   const [filters, setFilters] = useState({
@@ -77,11 +78,14 @@ const ViewReport = () => {
         } else if (reportFormat === 'excel') {
           generateExcelFile(assetsByType)
         }
+        showApiSuccess('Report generated successfully!')
       } else {
         console.error('Unexpected response format:', response.data)
+        showApiError(new Error('Unexpected response format from server'))
       }
     } catch (error) {
       console.error('Error generating report:', error)
+      showApiError(error)
     }
   }
 
@@ -189,6 +193,7 @@ const ViewReport = () => {
         setAssetCategories(response.data)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
+        showApiError(error)
       }
     }
 
@@ -202,6 +207,7 @@ const ViewReport = () => {
         setManufacturers(manufacturerResponse.data)
       } catch (error) {
         console.error('Error fetching manufacturer categories:', error)
+        showApiError(error)
       }
     }
 
@@ -219,6 +225,7 @@ const ViewReport = () => {
         setInstitutionList(response.data)
       } catch (error) {
         console.error('Error fetching institutions:', error)
+        showApiError(error)
       }
     }
     const fetchDepartments = async () => {
@@ -227,6 +234,7 @@ const ViewReport = () => {
         setDepartments(response.data)
       } catch (error) {
         console.error('Error fetching departments:', error)
+        showApiError(error)
       }
     }
 
@@ -236,6 +244,7 @@ const ViewReport = () => {
         setFunctionalAreas(response.data)
       } catch (error) {
         console.error('Error fetching functional areas:', error)
+        showApiError(error)
       }
     }
 
