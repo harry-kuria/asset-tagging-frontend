@@ -40,7 +40,7 @@
       "preload.js",
       "node_modules/**/*"
     ],
-    "artifactName": "Moowi Installer-${version}-${os}-${arch}.${ext}",
+    "artifactName": "Moowi Installer-${version}-${os}-${arch}-${target}.${ext}",
     "win": {
       "target": [
         "nsis",
