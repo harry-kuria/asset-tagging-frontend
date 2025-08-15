@@ -223,14 +223,14 @@ const MultipleEncode = () => {
               <Dropdown.Item onClick={() => setFilters({ ...filters, institution: null })}>
                 All
               </Dropdown.Item>
-              {institutionList.map((institution) => (
+              {Array.isArray(institutionList) ? institutionList.map((institution) => (
                 <Dropdown.Item
                   key={institution}
                   onClick={() => setFilters({ ...filters, institution })}
                 >
                   {institution}
                 </Dropdown.Item>
-              ))}
+              )) : null}
             </Dropdown.Menu>
           </Dropdown>
         </Form.Group>
@@ -244,14 +244,14 @@ const MultipleEncode = () => {
               <Dropdown.Item onClick={() => setFilters({ ...filters, department: null })}>
                 All
               </Dropdown.Item>
-              {departments.map((department) => (
+              {Array.isArray(departments) ? departments.map((department) => (
                 <Dropdown.Item
                   key={department}
                   onClick={() => setFilters({ ...filters, department })}
                 >
                   {department}
                 </Dropdown.Item>
-              ))}
+              )) : null}
             </Dropdown.Menu>
           </Dropdown>
         </Form.Group>
