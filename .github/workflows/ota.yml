@@ -72,7 +72,7 @@ jobs:
         env:
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --linux AppImage deb rpm tar.gz --config.extraMetadata.version=${{ steps.bump.outputs.version }} --publish never
+          npx electron-builder --linux deb --config.extraMetadata.version=${{ steps.bump.outputs.version }} --publish never
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4

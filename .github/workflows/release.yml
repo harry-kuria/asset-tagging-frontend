@@ -38,13 +38,13 @@ jobs:
 
       - name: Build Electron installers (Linux)
         if: runner.os == 'Linux'
-        run: npx electron-builder --linux AppImage deb rpm tar.gz --publish never
+        run: npx electron-builder --linux deb --publish never
 
       - name: Build Electron installers (macOS)
         if: runner.os == 'macOS'
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npx electron-builder --mac dmg zip --publish never
+        run: npx electron-builder --mac dmg zip pkg --publish never
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

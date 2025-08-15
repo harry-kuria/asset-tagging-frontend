@@ -67,10 +67,7 @@
     },
     "linux": {
       "target": [
-        "AppImage",
-        "deb",
-        "rpm",
-        "tar.gz"
+        "deb"
       ],
       "maintainer": "Moowi Group <support@moowigroup.com>",
       "executableName": "moowi-installer",
