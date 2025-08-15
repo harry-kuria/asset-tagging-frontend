@@ -382,11 +382,11 @@ const ViewReport = () => {
                 onChange={(e) => handleFilterChange('institutionName', e.target.value)}
               >
                 <option value="">All</option>
-                {institutionList.map((institution) => (
+                {Array.isArray(institutionList) ? institutionList.map((institution) => (
                   <option key={institution} value={institution}>
                     {institution}
                   </option>
-                ))}
+                )) : null}
               </Form.Select>
             </Form.Group>
           </Col>

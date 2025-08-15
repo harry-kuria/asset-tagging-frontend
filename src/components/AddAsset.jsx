@@ -722,11 +722,11 @@ const AddAsset = () => {
             required
           >
             <option value="">Select Asset Type</option>
-            {assetCategories.map((category) => (
+            {Array.isArray(assetCategories) ? assetCategories.map((category) => (
               <option key={category.id} value={category.category_name}>
                 {category.category_name}
               </option>
-            ))}
+            )) : null}
           </Form.Control>
         </Form.Group>
       </Row>
