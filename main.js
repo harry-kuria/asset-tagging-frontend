@@ -41,7 +41,7 @@ const createWindow = () => {
 
 // periodic update checks and manual shortcut
 let updateIntervalId
-const UPDATE_CHECK_INTERVAL_MS = 10 * 1000 // 10 seconds
+const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000 // 60 minutes
 
 app.whenReady().then(() => {
   createWindow()

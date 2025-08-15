@@ -12,7 +12,7 @@ on:
 
 jobs:
   release-linux:
-    name: Build and archive (Linux)
+    name: Build and publish (Linux)
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -38,27 +38,6 @@ jobs:
           npm version --no-git-tag-version "$NEW_VERSION"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Create tag via GitHub API
-        uses: actions/github-script@v7
-        env:
-          NEW_VERSION: ${{ steps.bump.outputs.version }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const version = process.env.NEW_VERSION
-            const tag = `v${version}`
-            try {
-              await github.rest.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `refs/tags/${tag}`,
-                sha: context.sha,
-              })
-              core.info(`Created tag ${tag}`)
-            } catch (e) {
-              core.warning(`Tag create skipped: ${e.message}`)
-            }
-
       - name: Install dependencies
         run: npm ci
 
@@ -68,29 +47,22 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build installers (Linux)
+      - name: Build and publish (Linux)
         env:
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --linux deb --config.extraMetadata.version=${{ steps.bump.outputs.version }} --publish never
-
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: installers-linux
-          path: dist/**/*
+          npx electron-builder --linux deb --config.extraMetadata.version=${{ steps.bump.outputs.version }} --publish always
 
   release-macos:
-    name: Build and archive (macOS)
+    name: Build and publish (macOS)
     runs-on: macos-latest
     needs: release-linux
     permissions:
       contents: write
     steps:
-      - name: Checkout tag
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.release-linux.outputs.version }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -108,30 +80,23 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build installers (macOS)
+      - name: Build and publish (macOS)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --mac dmg zip --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish never
-
-      - name: Upload macOS artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: installers-macos
-          path: dist/**/*
+          npx electron-builder --mac dmg zip --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish always
 
   release-windows:
-    name: Build and archive (Windows)
+    name: Build and publish (Windows)
     runs-on: windows-latest
     needs: release-linux
     permissions:
       contents: write
     steps:
-      - name: Checkout tag
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.release-linux.outputs.version }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -149,38 +114,8 @@ jobs:
           CI: false
           DISABLE_ESLINT_PLUGIN: true
 
-      - name: Build installers (Windows)
+      - name: Build and publish (Windows)
         env:
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --win nsis msi --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish never
-
-      - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: installers-windows
-          path: dist/**/*
-
-  finalize-release:
-    name: Publish Release with assets
-    runs-on: ubuntu-latest
-    needs: [release-linux, release-macos, release-windows]
-    permissions:
-      contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist-all
-          merge-multiple: true
-
-      - name: Create or update GitHub Release with notes and assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ needs.release-linux.outputs.version }}
-          name: Moowi Installer v${{ needs.release-linux.outputs.version }}
-          body: ${{ github.event.inputs.notes }}
-          files: |
-            dist-all/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          npx electron-builder --win nsis msi --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish always 
