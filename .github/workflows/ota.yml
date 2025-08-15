@@ -153,7 +153,7 @@ jobs:
         env:
           ELECTRON_BUILDER_MAX_CONCURRENCY: 1
         run: |
-          npx electron-builder --win nsis msi portable --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish never
+          npx electron-builder --win nsis msi --config.extraMetadata.version=${{ needs.release-linux.outputs.version }} --publish never
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4

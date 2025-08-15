@@ -44,7 +44,6 @@
     "win": {
       "target": [
         "nsis",
-        "portable",
         "msi"
       ],
       "icon": "moowi.ico"
