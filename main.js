@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron')
 const path = require('path')
 const log = require('electron-log')
 const { autoUpdater } = require('electron-updater')
@@ -39,6 +39,10 @@ const createWindow = () => {
   })
 }
 
+// periodic update checks and manual shortcut
+let updateIntervalId
+const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000 // 1 hour
+
 app.whenReady().then(() => {
   createWindow()
 
@@ -47,7 +51,34 @@ app.whenReady().then(() => {
   })
 
   // Optionally check on startup
-  autoUpdater.checkForUpdatesAndNotify().catch((e) => log.error('auto update error', e))
+  autoUpdater
+    .checkForUpdatesAndNotify()
+    .catch((e) => log.error('auto update error', e))
+
+  // Periodic checks
+  updateIntervalId = setInterval(() => {
+    autoUpdater
+      .checkForUpdatesAndNotify()
+      .catch((e) => log.error('scheduled checkForUpdatesAndNotify error', e))
+  }, UPDATE_CHECK_INTERVAL_MS)
+
+  // Global shortcut to manually trigger update checks: Ctrl/Cmd+U
+  const ok = globalShortcut.register('CommandOrControl+U', () => {
+    autoUpdater
+      .checkForUpdatesAndNotify()
+      .catch((e) => log.error('manual checkForUpdatesAndNotify error', e))
+  })
+  if (!ok) {
+    log.warn('Global shortcut registration failed for CommandOrControl+U')
+  }
+})
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll()
+  if (updateIntervalId) {
+    clearInterval(updateIntervalId)
+    updateIntervalId = undefined
+  }
 })
 
 app.on('window-all-closed', () => {
