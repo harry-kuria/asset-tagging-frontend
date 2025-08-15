@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { CBadge } from '@coreui/react'
+import { CBadge, CNavLink as CoreUINavLink } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
   const location = useLocation()
@@ -23,13 +23,13 @@ export const AppSidebarNav = ({ items }) => {
     const { component, name, badge, icon, onClick, ...rest } = item
     const Component = component
 
-    // Render clickable nav-link for items with onClick and no route
+    // Render clickable CoreUI nav link for items with onClick and no route
     if (onClick && !rest.to) {
       return (
         <Component key={index} {...rest}>
-          <div role="button" className="nav-link" onClick={onClick} style={{ cursor: 'pointer' }}>
+          <CoreUINavLink href="#" onClick={(e) => { e.preventDefault(); onClick(e) }}>
             {navLink(name, icon, badge)}
-          </div>
+          </CoreUINavLink>
         </Component>
       )
     }
