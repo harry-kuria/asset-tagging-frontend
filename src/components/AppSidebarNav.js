@@ -20,8 +20,20 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navItem = (item, index) => {
-    const { component, name, badge, icon, ...rest } = item
+    const { component, name, badge, icon, onClick, ...rest } = item
     const Component = component
+
+    // Render clickable nav-link for items with onClick and no route
+    if (onClick && !rest.to) {
+      return (
+        <Component key={index} {...rest}>
+          <div role="button" className="nav-link" onClick={onClick} style={{ cursor: 'pointer' }}>
+            {navLink(name, icon, badge)}
+          </div>
+        </Component>
+      )
+    }
+
     return (
       <Component
         {...(rest.to &&
