@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Electron installers (Windows)
         if: runner.os == 'Windows'
-        run: npx electron-builder --win nsis portable --publish never
+        run: npx electron-builder --win nsis msi portable --publish never
 
       - name: Build Electron installers (Linux)
         if: runner.os == 'Linux'
