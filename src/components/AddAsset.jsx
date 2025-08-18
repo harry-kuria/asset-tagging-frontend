@@ -93,6 +93,25 @@ const AddAsset = () => {
   useEffect(() => {
     console.log('assetCategories state updated:', assetCategories)
     console.log('assetCategories length:', assetCategories.length)
+    console.log('assetCategories type:', typeof assetCategories)
+    console.log('Is array?', Array.isArray(assetCategories))
+    if (assetCategories.length > 0) {
+      console.log('First category in state:', assetCategories[0])
+      console.log('First category name:', assetCategories[0].name)
+      console.log('First category id:', assetCategories[0].id)
+    }
+    
+    // Test: If no categories loaded, set some test categories
+    if (assetCategories.length === 0) {
+      console.log('Setting test categories...')
+      setTimeout(() => {
+        setAssetCategories([
+          { id: 1, name: 'Test Computer' },
+          { id: 2, name: 'Test Printer' },
+          { id: 3, name: 'Test Network' }
+        ])
+      }, 2000)
+    }
   }, [assetCategories])
 
   const handleChange = (e) => {
@@ -789,6 +808,10 @@ const AddAsset = () => {
             required
           >
             <option value="">Select Asset Type</option>
+            {/* Test: Force display some categories for debugging */}
+            <option value="TEST-Computer">TEST-Computer</option>
+            <option value="TEST-Printer">TEST-Printer</option>
+            
             {Array.isArray(assetCategories) && assetCategories.length > 0 ? (
               assetCategories.map((category) => {
                 console.log('Rendering category:', category)
