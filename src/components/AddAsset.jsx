@@ -35,14 +35,24 @@ const AddAsset = () => {
     // Fetch asset categories when the component mounts
     const fetchAssetCategories = async () => {
       try {
-        const response = await axios.get(endpoints.categories)
+        const response = await axiosInstance.get(endpoints.categories)
+        console.log('Categories response:', response.data)
         // Ensure we have an array of data
         const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        console.log('Processed categories:', data)
         setAssetCategories(data)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
         showApiError(error)
-        setAssetCategories([])
+        // Set some default categories as fallback
+        setAssetCategories([
+          { id: 1, name: 'Computer' },
+          { id: 2, name: 'Printer' },
+          { id: 3, name: 'Network' },
+          { id: 4, name: 'Furniture' },
+          { id: 5, name: 'Vehicle' },
+          { id: 6, name: 'Equipment' }
+        ])
       }
     }
     fetchAssetCategories()
@@ -742,8 +752,8 @@ const AddAsset = () => {
           >
             <option value="">Select Asset Type</option>
             {Array.isArray(assetCategories) ? assetCategories.map((category) => (
-              <option key={category.id} value={category.category_name}>
-                {category.category_name}
+              <option key={category.id} value={category.name}>
+                {category.name}
               </option>
             )) : null}
           </Form.Control>
