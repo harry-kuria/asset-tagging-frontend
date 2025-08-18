@@ -27,7 +27,7 @@ export const endpoints = {
   // Assets
   assets: `${API_URL}/assets`,
   assetById: (assetId) => `${API_URL}/assets/${assetId}`,
-  addAsset: `${API_URL}/addAsset`,
+  addAsset: `${API_URL}/api/addAsset`,
   addMultipleAssets: (assetType) => `${API_URL}/addMultipleAssets/${assetType}`,
   getAssetDetails: (id) => `${API_URL}/getAssetDetails?id=${id}`,
   

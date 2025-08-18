@@ -7,6 +7,41 @@ import * as XLSX from 'xlsx'
 import { useNavigate } from 'react-router-dom'
 import { endpoints } from '../../../config/api'
 
+// Create axios instance with auth headers
+const axiosInstance = axios.create({
+  timeout: 10000,
+})
+
+// Request interceptor to add auth token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const authToken = localStorage.getItem('authToken')
+    if (authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// Response interceptor to handle auth errors
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired, clear storage and redirect to login
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('userRoles')
+      localStorage.removeItem('currentUser')
+      localStorage.removeItem('currentCompany')
+      window.location.href = '/'
+    }
+    return Promise.reject(error)
+  }
+)
+
 const AddAsset = () => {
   const [assetData, setAssetData] = useState({
     assetName: '',
@@ -37,7 +72,7 @@ const AddAsset = () => {
     // Fetch asset categories when the component mounts
     const fetchAssetCategories = async () => {
       try {
-        const response = await axios.get(endpoints.categories)
+        const response = await axiosInstance.get(endpoints.categories)
         console.log('Categories response:', response.data)
         
         // Extract categories from the nested data structure
@@ -81,7 +116,7 @@ const AddAsset = () => {
   useEffect(() => {
     const checkTrialStatus = async () => {
       try {
-        const response = await axios.get(endpoints.checkTrialStatus);
+        const response = await axiosInstance.get(endpoints.checkTrialStatus);
         if (response.data.isActive) {
           console.log(response.data.message); // Trial is still active or license is valid
           setIsTrialActive(true);
@@ -511,7 +546,7 @@ const AddAsset = () => {
       // Loop through each asset type and make a request to the corresponding endpoint
       const requests = Object.entries(assetsByType).map(async ([assetType, assets]) => {
         try {
-          const response = await axios.post(endpoints.addMultipleAssets(assetType), assets)
+          const response = await axiosInstance.post(endpoints.addMultipleAssets(assetType), assets)
           if (response.data.success) {
             // Handle success as needed
           } else {
@@ -552,23 +587,23 @@ const AddAsset = () => {
       if (assetsArray.length > 0) {
         // Importing multiple assets from Excel
         for (const asset of assetsArray) {
-          const formattedDate = new Date(asset.purchaseDate)
-            .toISOString()
-            .slice(0, 19)
-            .replace('T', ' ')
-          const formData = new FormData()
-          Object.entries(asset).forEach(([key, value]) => {
-            if (key === 'logo') {
-              formData.append('logo', value)
-            } else {
-              formData.append(key, value)
-            }
-          })
-          const response = await axios.post(endpoints.addAsset, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          })
+          // Convert to JSON format expected by backend
+          const assetData = {
+            assetName: asset.assetName || '',
+            assetType: asset.assetType || '',
+            institutionName: asset.institutionName || '',
+            department: asset.department || '',
+            functionalArea: asset.functionalArea || '',
+            manufacturer: asset.manufacturer || '',
+            modelNumber: asset.modelNumber || '',
+            serialNumber: asset.serialNumber || '',
+            location: asset.location || '',
+            status: asset.status || 'Active',
+            purchaseDate: asset.purchaseDate ? new Date(asset.purchaseDate).toISOString().split('T')[0] : '',
+            purchasePrice: parseFloat(asset.purchasePrice) || 0
+          }
+          
+          const response = await axiosInstance.post(endpoints.addAsset, assetData)
           if (response.data.success) {
             // Handle success as needed
           } else {
@@ -579,21 +614,24 @@ const AddAsset = () => {
         alert('Assets added successfully!')
       } else {
         // Adding a single asset via the form
-        const dateObject = new Date(assetData.purchaseDate)
-        const formattedDate = dateObject.toISOString().slice(0, 19).replace('T', ' ')
-        const formData = new FormData()
-        Object.entries(assetData).forEach(([key, value]) => {
-          if (key === 'logo') {
-            formData.append('logo', value)
-          } else {
-            formData.append(key, value)
-          }
-        })
-        const response = await axios.post(endpoints.addAsset, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
+        // Convert to JSON format expected by backend
+        const requestData = {
+          assetName: assetData.assetName || '',
+          assetType: assetData.assetType || '',
+          institutionName: assetData.institutionName || '',
+          department: assetData.department || '',
+          functionalArea: assetData.functionalArea || '',
+          manufacturer: assetData.manufacturer || '',
+          modelNumber: assetData.modelNumber || '',
+          serialNumber: assetData.serialNumber || '',
+          location: assetData.location || '',
+          status: assetData.status || 'Active',
+          purchaseDate: assetData.purchaseDate ? new Date(assetData.purchaseDate).toISOString().split('T')[0] : '',
+          purchasePrice: parseFloat(assetData.purchasePrice) || 0
+        }
+        
+        console.log('Sending asset data:', requestData)
+        const response = await axiosInstance.post(endpoints.addAsset, requestData)
         if (response.data.success) {
           // Reset the form or perform any other necessary actions
           setAssetData({
@@ -623,7 +661,12 @@ const AddAsset = () => {
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('An unexpected error occurred. Please try again.')
+      if (error.response) {
+        console.error('Error response:', error.response.data)
+        alert(`Error: ${error.response.data.error || error.response.data.message || 'Failed to add asset'}`)
+      } else {
+        alert('An unexpected error occurred. Please try again.')
+      }
     }
   }
 
