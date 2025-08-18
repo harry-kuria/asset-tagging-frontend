@@ -136,28 +136,58 @@ const MultipleEncode = () => {
     const fetchInstitutions = async () => {
       try {
         const response = await axiosInstance.get(endpoints.institutions)
-        setInstitutionList(response.data)
+        console.log('Institutions response:', response.data)
+        // Ensure we have an array of data
+        let data = []
+        if (response.data && response.data.success && response.data.data) {
+          data = response.data.data
+        } else if (Array.isArray(response.data)) {
+          data = response.data
+        }
+        console.log('Processed institutions:', data)
+        setInstitutionList(Array.isArray(data) ? data : [])
       } catch (error) {
         console.error('Error fetching institutions:', error)
         setError('Failed to load institutions. Please refresh the page.')
+        setInstitutionList([])
       }
     }
     const fetchDepartments = async () => {
       try {
         const response = await axiosInstance.get(endpoints.departments)
-        setDepartments(response.data)
+        console.log('Departments response:', response.data)
+        // Ensure we have an array of data
+        let data = []
+        if (response.data && response.data.success && response.data.data) {
+          data = response.data.data
+        } else if (Array.isArray(response.data)) {
+          data = response.data
+        }
+        console.log('Processed departments:', data)
+        setDepartments(Array.isArray(data) ? data : [])
       } catch (error) {
         console.error('Error fetching departments:', error)
         setError('Failed to load departments. Please refresh the page.')
+        setDepartments([])
       }
     }
     const fetchFunctionalAreas = async () => {
       try {
         const response = await axiosInstance.get(endpoints.functionalAreas)
-        setFunctionalAreas(response.data)
+        console.log('Functional areas response:', response.data)
+        // Ensure we have an array of data
+        let data = []
+        if (response.data && response.data.success && response.data.data) {
+          data = response.data.data
+        } else if (Array.isArray(response.data)) {
+          data = response.data
+        }
+        console.log('Processed functional areas:', data)
+        setFunctionalAreas(Array.isArray(data) ? data : [])
       } catch (error) {
         console.error('Error fetching functional areas:', error)
         setError('Failed to load functional areas. Please refresh the page.')
+        setFunctionalAreas([])
       }
     }
     fetchInstitutions()
@@ -268,7 +298,7 @@ const MultipleEncode = () => {
               <Dropdown.Item onClick={() => setFilters({ ...filters, institution: null })}>
                 All
               </Dropdown.Item>
-              {institutionList.map((institution) => (
+              {Array.isArray(institutionList) && institutionList.map((institution) => (
                 <Dropdown.Item
                   key={institution}
                   onClick={() => setFilters({ ...filters, institution })}
@@ -289,7 +319,7 @@ const MultipleEncode = () => {
               <Dropdown.Item onClick={() => setFilters({ ...filters, department: null })}>
                 All
               </Dropdown.Item>
-              {departments.map((department) => (
+              {Array.isArray(departments) && departments.map((department) => (
                 <Dropdown.Item
                   key={department}
                   onClick={() => setFilters({ ...filters, department })}
@@ -311,7 +341,7 @@ const MultipleEncode = () => {
         </Form.Group>
       </Form>
 
-      {searchResults.length > 0 && (
+      {Array.isArray(searchResults) && searchResults.length > 0 && (
         <ListGroup>
           {searchResults.map((result) => (
             <ListGroup.Item
@@ -334,7 +364,7 @@ const MultipleEncode = () => {
         {isLoading ? 'Generating...' : 'Generate Barcodes'}
       </Button>
 
-      {generatedBarcodes.length > 0 && (
+      {Array.isArray(generatedBarcodes) && generatedBarcodes.length > 0 && (
         <div className="mt-4" ref={barcodesComponentRef}>
           <h3>Generated Barcodes</h3>
           <Card>
