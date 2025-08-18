@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import * as XLSX from 'xlsx'
 import { endpoints } from '../config/api'
 import { showApiError, showApiSuccess } from '../utils/toast'
+import axiosInstance from '../utils/axios'
 
 const AddAsset = () => {
   const [assetData, setAssetData] = useState({
@@ -609,15 +610,24 @@ const AddAsset = () => {
             .toISOString()
             .slice(0, 19)
             .replace('T', ' ')
-          const formData = new FormData()
-          Object.entries(asset).forEach(([key, value]) => {
-            if (key === 'logo') {
-              formData.append('logo', value)
-            } else {
-              formData.append(key, value)
-            }
-          })
-          const response = await endpoints.addAsset(asset.assetType)(formData)
+          
+          // Convert to JSON format expected by backend
+          const assetData = {
+            assetName: asset.assetName || '',
+            assetType: asset.assetType || '',
+            institutionName: asset.institutionName || '',
+            department: asset.department || '',
+            functionalArea: asset.functionalArea || '',
+            manufacturer: asset.manufacturer || '',
+            modelNumber: asset.modelNumber || '',
+            serialNumber: asset.serialNumber || '',
+            location: asset.location || '',
+            status: asset.status || 'Active',
+            purchaseDate: asset.purchaseDate ? new Date(asset.purchaseDate).toISOString().split('T')[0] : '',
+            purchasePrice: parseFloat(asset.purchasePrice) || 0
+          }
+          
+          const response = await axiosInstance.post(endpoints.addAsset, assetData)
           if (response.data.success) {
             // Handle success as needed
           } else {
@@ -630,15 +640,24 @@ const AddAsset = () => {
         // Adding a single asset via the form
         const dateObject = new Date(assetData.purchaseDate)
         const formattedDate = dateObject.toISOString().slice(0, 19).replace('T', ' ')
-        const formData = new FormData()
-        Object.entries(assetData).forEach(([key, value]) => {
-          if (key === 'logo') {
-            formData.append('logo', value)
-          } else {
-            formData.append(key, value)
-          }
-        })
-        const response = await endpoints.addAsset(assetData.assetType)(formData)
+        
+        // Convert to JSON format expected by backend
+        const requestData = {
+          assetName: assetData.assetName || '',
+          assetType: assetData.assetType || '',
+          institutionName: assetData.institutionName || '',
+          department: assetData.department || '',
+          functionalArea: assetData.functionalArea || '',
+          manufacturer: assetData.manufacturer || '',
+          modelNumber: assetData.modelNumber || '',
+          serialNumber: assetData.serialNumber || '',
+          location: assetData.location || '',
+          status: assetData.status || 'Active',
+          purchaseDate: assetData.purchaseDate ? new Date(assetData.purchaseDate).toISOString().split('T')[0] : '',
+          purchasePrice: parseFloat(assetData.purchasePrice) || 0
+        }
+        
+        const response = await axiosInstance.post(endpoints.addAsset, requestData)
         if (response.data.success) {
           // Reset the form or perform any other necessary actions
           setAssetData({
