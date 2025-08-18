@@ -9,6 +9,41 @@ import jsPDF from 'jspdf' // Import jsPDF library
 import 'jspdf-autotable'
 import { endpoints } from '../../../config/api'
 
+// Create axios instance with proper timeout and auth headers
+const axiosInstance = axios.create({
+  timeout: 30000, // 30 seconds timeout
+})
+
+// Request interceptor to add auth token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const authToken = localStorage.getItem('authToken')
+    if (authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// Response interceptor to handle auth errors
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired, clear storage and redirect to login
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('userRoles')
+      localStorage.removeItem('currentUser')
+      localStorage.removeItem('currentCompany')
+      window.location.href = '/'
+    }
+    return Promise.reject(error)
+  }
+)
+
 const MultipleEncode = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [searchResults, setSearchResults] = useState([])
@@ -18,6 +53,8 @@ const MultipleEncode = () => {
   const [showAssetModal, setShowAssetModal] = useState(false)
   const [departments, setDepartments] = useState([])
   const [functionalAreas, setFunctionalAreas] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
   const barcodesComponentRef = useRef()
   const handleDownloadPdf = () => {
     try {
@@ -70,8 +107,10 @@ const MultipleEncode = () => {
   }
   const handleGenerateBarcodes = async () => {
     // Fetch assets based on filters to generate barcodes
+    setIsLoading(true)
+    setError(null)
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         endpoints.generateBarcodesByInstitutionAndDepartment,
         {
           institution: filters.institution || null,
@@ -87,44 +126,49 @@ const MultipleEncode = () => {
       setAssetDetails(assetDetails) // Assuming you have a state variable to store asset details
     } catch (error) {
       console.error('Error generating barcodes:', error)
+      setError('Failed to generate barcodes. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
     const fetchInstitutions = async () => {
       try {
-        const response = await axios.get(endpoints.institutions)
+        const response = await axiosInstance.get(endpoints.institutions)
         setInstitutionList(response.data)
       } catch (error) {
         console.error('Error fetching institutions:', error)
+        setError('Failed to load institutions. Please refresh the page.')
       }
     }
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get(endpoints.departments)
+        const response = await axiosInstance.get(endpoints.departments)
         setDepartments(response.data)
       } catch (error) {
         console.error('Error fetching departments:', error)
+        setError('Failed to load departments. Please refresh the page.')
       }
     }
     const fetchFunctionalAreas = async () => {
       try {
-        const response = await axios.get(endpoints.functionalAreas)
+        const response = await axiosInstance.get(endpoints.functionalAreas)
         setFunctionalAreas(response.data)
       } catch (error) {
         console.error('Error fetching functional areas:', error)
+        setError('Failed to load functional areas. Please refresh the page.')
       }
     }
     fetchInstitutions()
     fetchDepartments()
     fetchFunctionalAreas()
-    fetchInstitutions()
   }, [])
 
   useEffect(() => {
     const fetchSearchResults = async () => {
       try {
-        const response = await axios.get(endpoints.searchAssets, {
+        const response = await axiosInstance.get(endpoints.searchAssets, {
           params: {
             term: searchTerm,
             ...filters,
@@ -148,7 +192,7 @@ const MultipleEncode = () => {
 
     if (assetDetails) {
       try {
-        const response = await axios.get(endpoints.getAssetDetails(assetDetails.id))
+        const response = await axiosInstance.get(endpoints.getAssetDetails(assetDetails.id))
         const detailedInfo = response.data
         const institutionName = detailedInfo.institutionName.toUpperCase()
         const institutionShort = detailedInfo.institutionName.substring(0, 2).toUpperCase()
@@ -199,6 +243,18 @@ const MultipleEncode = () => {
   return (
     <Container className="mt-5">
       <h2 className="mb-4">View Assets</h2>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+          <button 
+            type="button" 
+            className="btn-close float-end" 
+            onClick={() => setError(null)}
+            aria-label="Close"
+          ></button>
+        </div>
+      )}
 
       <Form>
         <Form.Group controlId="institution">
@@ -270,8 +326,12 @@ const MultipleEncode = () => {
         </ListGroup>
       )}
 
-      <Button variant="primary" onClick={handleGenerateBarcodes}>
-        Generate Barcodes
+      <Button 
+        variant="primary" 
+        onClick={handleGenerateBarcodes}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Generating...' : 'Generate Barcodes'}
       </Button>
 
       {generatedBarcodes.length > 0 && (
