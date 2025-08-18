@@ -110,12 +110,18 @@ const MultipleEncode = () => {
     setIsLoading(true)
     setError(null)
     try {
+      // Check if we have the required fields
+      if (!filters.institution || !filters.department) {
+        setError('Please select both institution and department to generate barcodes.')
+        setIsLoading(false)
+        return
+      }
+
       const response = await axiosInstance.post(
         endpoints.generateBarcodesByInstitutionAndDepartment,
         {
-          institution: filters.institution || null,
-          department: filters.department || null,
-          functionalArea: filters.functionalArea || null,
+          institution: filters.institution,
+          department: filters.department,
         },
       )
       const { barcodeTags, assetDetails } = response.data
