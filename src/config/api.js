@@ -54,10 +54,6 @@ export const endpoints = {
   notifications: `${API_URL}/notifications`,
   recentActivities: `${API_URL}/recent-activities`,
   dashboardStats: `${API_URL}/api/dashboard/stats`,
-  assetStats: `${API_URL}/assets/stats`,
-  userStats: `${API_URL}/users/stats`,
-  barcodeStats: `${API_URL}/barcodes/stats`,
-  reportStats: `${API_URL}/reports/stats`,
 };
 
 export const getCurrentBaseUrl = () => API_URL; 

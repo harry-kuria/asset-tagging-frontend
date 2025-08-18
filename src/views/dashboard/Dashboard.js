@@ -9,7 +9,7 @@ import {
   cilBarcode,
   cilFile,
 } from '@coreui/icons'
-import axios from 'axios'
+import axiosInstance from '../../utils/axios'
 import { endpoints } from '../../config/api'
 
 // Import Chart.js components
@@ -61,18 +61,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchSystemTotals = async () => {
       try {
-        const [userStats, assetStats, barcodeStats, reportStats] = await Promise.all([
-          axios.get(endpoints.userStats),
-          axios.get(endpoints.assetStats),
-          axios.get(endpoints.barcodeStats),
-          axios.get(endpoints.reportStats)
-        ])
+        const response = await axiosInstance.get(endpoints.dashboardStats)
+        const stats = response.data.data // The backend returns data in a nested structure
 
         setSystemTotals({
-          users: userStats.data,
-          assets: assetStats.data,
-          barcodes: barcodeStats.data,
-          reports: reportStats.data
+          users: { total: stats.total_users || 0, active: stats.total_users || 0 },
+          assets: { total: stats.total_assets || 0, active: stats.active_assets || 0 },
+          barcodes: { total: 0, scanned: 0 }, // These aren't provided by the current backend
+          reports: { total: 0, generated: 0 }  // These aren't provided by the current backend
         })
       } catch (error) {
         console.error('Error fetching system totals:', error)
