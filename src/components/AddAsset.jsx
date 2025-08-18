@@ -59,10 +59,16 @@ const AddAsset = () => {
         console.log('First category sample:', data[0])
         
         // Filter out duplicates and ensure we have valid data
-        const uniqueCategories = data.filter((category, index, self) => 
-          category && category.name && 
-          index === self.findIndex(c => c.name === category.name)
-        )
+        const uniqueCategories = data
+          .filter(category => category && category.name) // Filter out invalid entries
+          .reduce((acc, category) => {
+            // Check if we already have a category with this name
+            const existingCategory = acc.find(cat => cat.name === category.name)
+            if (!existingCategory) {
+              acc.push(category)
+            }
+            return acc
+          }, [])
         
         console.log('Unique categories:', uniqueCategories)
         setAssetCategories(uniqueCategories)
@@ -82,6 +88,13 @@ const AddAsset = () => {
     }
     fetchAssetCategories()
   }, [])
+
+  // Debug log for assetCategories state changes
+  useEffect(() => {
+    console.log('assetCategories state updated:', assetCategories)
+    console.log('assetCategories length:', assetCategories.length)
+  }, [assetCategories])
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setAssetData({ ...assetData, [name]: value })
@@ -781,12 +794,14 @@ const AddAsset = () => {
                 console.log('Rendering category:', category)
                 return (
                   <option key={category.id} value={category.name}>
-                    {category.name}
+                    {category.name || 'Unnamed Category'}
                   </option>
                 )
               })
             ) : (
-              <option value="" disabled>Loading categories...</option>
+              <option value="" disabled>
+                {assetCategories.length === 0 ? 'No categories available' : 'Loading categories...'}
+              </option>
             )}
           </Form.Control>
         </Form.Group>
