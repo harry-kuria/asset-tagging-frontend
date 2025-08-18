@@ -38,9 +38,32 @@ const AddAsset = () => {
     const fetchAssetCategories = async () => {
       try {
         const response = await axios.get(endpoints.categories)
-        // Ensure we have an array of data
-        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
-        setAssetCategories(data)
+        console.log('Categories response:', response.data)
+        
+        // Extract categories from the nested data structure
+        let data = []
+        if (response.data && response.data.success && response.data.data) {
+          data = response.data.data
+        } else if (Array.isArray(response.data)) {
+          data = response.data
+        }
+        
+        console.log('Extracted categories:', data)
+        
+        // Filter out duplicates and ensure we have valid data
+        const uniqueCategories = data
+          .filter(category => category && category.name) // Filter out invalid entries
+          .reduce((acc, category) => {
+            // Check if we already have a category with this name
+            const existingCategory = acc.find(cat => cat.name === category.name)
+            if (!existingCategory) {
+              acc.push(category)
+            }
+            return acc
+          }, [])
+        
+        console.log('Unique categories:', uniqueCategories)
+        setAssetCategories(uniqueCategories)
       } catch (error) {
         console.error('Error fetching asset categories:', error)
         setAssetCategories([])
@@ -48,6 +71,12 @@ const AddAsset = () => {
     }
     fetchAssetCategories()
   }, [])
+
+  // Debug log for assetCategories state changes
+  useEffect(() => {
+    console.log('assetCategories state updated:', assetCategories)
+    console.log('assetCategories length:', assetCategories.length)
+  }, [assetCategories])
 
   useEffect(() => {
     const checkTrialStatus = async () => {
@@ -658,11 +687,20 @@ const AddAsset = () => {
             required
           >
             <option value="">Select Asset Type</option>
-            {Array.isArray(assetCategories) ? assetCategories.map((category) => (
-              <option key={category.id} value={category.category_name}>
-                {category.category_name}
+            {Array.isArray(assetCategories) && assetCategories.length > 0 ? (
+              assetCategories.map((category) => {
+                console.log('Rendering category:', category)
+                return (
+                  <option key={category.id} value={category.name}>
+                    {category.name || 'Unnamed Category'}
+                  </option>
+                )
+              })
+            ) : (
+              <option value="" disabled>
+                {assetCategories.length === 0 ? 'No categories available' : 'Loading categories...'}
               </option>
-            )) : null}
+            )}
           </Form.Control>
         </Form.Group>
         )}
