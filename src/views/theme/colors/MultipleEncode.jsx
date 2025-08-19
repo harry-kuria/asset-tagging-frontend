@@ -72,7 +72,7 @@ const MultipleEncode = () => {
         const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
         
         // Create clean barcode code without variable names
-        const cleanCode = `${parts.find(part => part.startsWith('ID:'))?.split(':')[1] || ''}-${namePart}-${parts.find(part => part.startsWith('Type:'))?.split(':')[1] || ''}-${instPart}-${deptPart}-${locPart}`
+        const cleanCode = `${namePart.substring(0, 2).toUpperCase()}/${parts.find(part => part.startsWith('Type:'))?.split(':')[1]?.substring(0, 2).toUpperCase() || ''}/${instPart.substring(0, 2).toUpperCase()}/${deptPart.substring(0, 2).toUpperCase()}/${locPart.substring(0, 2).toUpperCase()}`
         
         return [
           namePart,
@@ -410,7 +410,7 @@ const MultipleEncode = () => {
                     const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
                     
                     // Create clean barcode code without variable names
-                    const cleanCode = `${parts.find(part => part.startsWith('ID:'))?.split(':')[1] || ''}-${namePart}-${parts.find(part => part.startsWith('Type:'))?.split(':')[1] || ''}-${instPart}-${deptPart}-${locPart}`
+                    const cleanCode = `${namePart.substring(0, 2).toUpperCase()}/${parts.find(part => part.startsWith('Type:'))?.split(':')[1]?.substring(0, 2).toUpperCase() || ''}/${instPart.substring(0, 2).toUpperCase()}/${deptPart.substring(0, 2).toUpperCase()}/${locPart.substring(0, 2).toUpperCase()}`
                     
                     return (
                       <tr key={index}>
