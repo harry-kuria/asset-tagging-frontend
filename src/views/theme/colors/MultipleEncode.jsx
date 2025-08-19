@@ -61,13 +61,24 @@ const MultipleEncode = () => {
       const pdf = new jsPDF()
       pdf.text('Generated Barcodes', 20, 20)
       // Define the table headers
-      const headers = [['Asset Name', 'Code', 'Location']]
+      const headers = [['Name', 'Institution', 'Department', 'Location', 'Full Code']]
       // Extract table rows from generatedBarcodes
-      const data = generatedBarcodes.map((barcode) => [
-        barcode.assetDetails.assetName,
-        barcode.formattedString,
-        barcode.assetDetails.location,
-      ])
+      const data = generatedBarcodes.map((barcode) => {
+        const formattedString = barcode.formattedString
+        const parts = formattedString.split('|')
+        const namePart = parts.find(part => part.startsWith('Name:'))?.split(':')[1] || barcode.assetDetails.assetName
+        const instPart = parts.find(part => part.startsWith('Inst:'))?.split(':')[1] || barcode.assetDetails.institutionName
+        const deptPart = parts.find(part => part.startsWith('Dept:'))?.split(':')[1] || barcode.assetDetails.department
+        const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
+        
+        return [
+          namePart,
+          instPart,
+          deptPart,
+          locPart,
+          formattedString,
+        ]
+      })
       // Add the table with autoTable
       pdf.autoTable({
         startY: 30, // Adjust the starting position as needed
@@ -379,18 +390,32 @@ const MultipleEncode = () => {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Code</th>
+                    <th>Institution</th>
+                    <th>Department</th>
                     <th>Location</th>
+                    <th>Full Code</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {generatedBarcodes.map((barcode, index) => (
-                    <tr key={index}>
-                      <td>{barcode.assetDetails.assetName}</td>
-                      <td>{barcode.formattedString}</td>
-                      <td>{barcode.assetDetails.location}</td>
-                    </tr>
-                  ))}
+                  {generatedBarcodes.map((barcode, index) => {
+                    // Parse the formattedString to extract abbreviated values
+                    const formattedString = barcode.formattedString
+                    const parts = formattedString.split('|')
+                    const namePart = parts.find(part => part.startsWith('Name:'))?.split(':')[1] || barcode.assetDetails.assetName
+                    const instPart = parts.find(part => part.startsWith('Inst:'))?.split(':')[1] || barcode.assetDetails.institutionName
+                    const deptPart = parts.find(part => part.startsWith('Dept:'))?.split(':')[1] || barcode.assetDetails.department
+                    const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
+                    
+                    return (
+                      <tr key={index}>
+                        <td>{namePart}</td>
+                        <td>{instPart}</td>
+                        <td>{deptPart}</td>
+                        <td>{locPart}</td>
+                        <td>{formattedString}</td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </Card.Body>
