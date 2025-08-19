@@ -424,7 +424,7 @@ const ViewReport = () => {
       pdf.setTextColor(255, 255, 255)
       pdf.setFontSize(8)
       pdf.setFont('helvetica', 'normal')
-      pdf.text('© 2024 Moowi Group. All rights reserved.', 10, pageHeight - 12)
+      pdf.text(`© ${new Date().getFullYear()} Moowi Group. All rights reserved.`, 10, pageHeight - 12)
       pdf.text('Asset Management System Report', 10, pageHeight - 8)
 
       // Save the PDF with Moowi branding
