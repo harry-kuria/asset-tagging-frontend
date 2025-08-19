@@ -124,7 +124,7 @@ const MultipleEncode = () => {
           department: filters.department,
         },
       )
-      const { barcodeTags, assetDetails } = response.data
+      const { barcodeTags, assetDetails } = response.data.data
       // Now you can use barcodeTags and assetDetails as needed
       console.log('Barcode Tags:', barcodeTags)
       console.log('Asset Details:', assetDetails)
