@@ -309,9 +309,33 @@ const ViewReport = () => {
       // Create a new jsPDF instance
       const pdf = new jsPDF({ orientation: 'landscape' })
 
-      // Add title for the summary table
+      // Add Moowi header with branding
+      pdf.setFillColor(12, 83, 245) // Moowi blue color
+      pdf.rect(0, 0, 297, 25, 'F') // Header background
+      
+      // Add Moowi text
+      pdf.setTextColor(255, 255, 255)
       pdf.setFontSize(18)
-      pdf.text(`Asset Register of ${filters.institutionName}`, 10, 10)
+      pdf.setFont('helvetica', 'bold')
+      pdf.text('MOOWI GROUP', 10, 15)
+      
+      // Add subtitle
+      pdf.setFontSize(10)
+      pdf.text('Asset Management System', 10, 22)
+      
+      // Reset text color for content
+      pdf.setTextColor(0, 0, 0)
+      
+      // Add title for the summary table
+      pdf.setFontSize(16)
+      pdf.setFont('helvetica', 'bold')
+      pdf.text(`Asset Register Report - ${filters.institutionName}`, 10, 40)
+      
+      // Add report metadata
+      pdf.setFontSize(10)
+      pdf.setFont('helvetica', 'normal')
+      pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 10, 50)
+      pdf.text(`Report Type: Asset Register Summary`, 10, 57)
 
       const customOrder = [
         'land',
@@ -377,20 +401,34 @@ const ViewReport = () => {
         },
       ])
 
+      // Add Moowi branding to table
       pdf.autoTable({
         head: [[
-          { content: 'Asset Type', styles: { fontStyle: 'bold', fontSize: 10, align: 'left' } },
-          { content: 'Total Market Value (Kshs.)', styles: { fontStyle: 'bold', cellPadding: 1, lineHeight: 10, halign: 'right', fontSize: 10 } },
+          { content: 'Asset Type', styles: { fontStyle: 'bold', fontSize: 11, align: 'left', fillColor: [12, 83, 245], textColor: [255, 255, 255] } },
+          { content: 'Total Market Value (Kshs.)', styles: { fontStyle: 'bold', cellPadding: 1, lineHeight: 10, halign: 'right', fontSize: 11, fillColor: [12, 83, 245], textColor: [255, 255, 255] } },
         ]],
         body: summaryData,
-        startY: 30,
-        margin: { top: 30 },
+        startY: 75,
+        margin: { top: 75 },
         bodyStyles: { fontStyle: 'normal', textColor: [0, 0, 0], fontSize: 10 },
         columnStyles: { 0: { align: 'left' }, 1: { halign: 'right' } },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        styles: { overflow: 'linebreak' },
       })
 
-      // Save the PDF
-      pdf.save('asset_register.pdf')
+      // Add footer with Moowi branding
+      const pageHeight = pdf.internal.pageSize.height
+      pdf.setFillColor(12, 83, 245)
+      pdf.rect(0, pageHeight - 20, 297, 20, 'F')
+      
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(8)
+      pdf.setFont('helvetica', 'normal')
+      pdf.text('© 2024 Moowi Group. All rights reserved.', 10, pageHeight - 12)
+      pdf.text('Asset Management System Report', 10, pageHeight - 8)
+
+      // Save the PDF with Moowi branding
+      pdf.save('moowi_asset_register.pdf')
     } catch (error) {
       console.error('Error generating asset register report:', error)
     } finally {
