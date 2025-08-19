@@ -9,8 +9,8 @@ import {
   cilBarcode,
   cilFile,
   cilChart,
-  cilTrendingUp,
-  cilTrendingDown,
+  cilArrowTop,
+  cilArrowBottom,
   cilCalendar,
   cilClock,
   cilCheckCircle,
@@ -309,7 +309,7 @@ const Dashboard = () => {
                     <h3 className="mb-2 fw-bold">{systemTotals.users.total}</h3>
                     <div className="d-flex align-items-center gap-2">
                       <Badge bg="success" className="px-2 py-1" style={{ borderRadius: '8px' }}>
-                        <CIcon icon={cilTrendingUp} size="sm" />
+                        <CIcon icon={cilArrowTop} size="sm" />
                         {calculateGrowth(systemTotals.users.total)}%
                       </Badge>
                       <small className="text-muted">{systemTotals.users.active} Active</small>
@@ -344,7 +344,7 @@ const Dashboard = () => {
                     <h3 className="mb-2 fw-bold">{systemTotals.assets.total}</h3>
                     <div className="d-flex align-items-center gap-2">
                       <Badge bg="info" className="px-2 py-1" style={{ borderRadius: '8px' }}>
-                        <CIcon icon={cilTrendingUp} size="sm" />
+                        <CIcon icon={cilArrowTop} size="sm" />
                         {calculateGrowth(systemTotals.assets.total)}%
                       </Badge>
                       <small className="text-muted">{systemTotals.assets.active} Active</small>
@@ -379,7 +379,7 @@ const Dashboard = () => {
                     <h3 className="mb-2 fw-bold">{systemTotals.barcodes.total}</h3>
                     <div className="d-flex align-items-center gap-2">
                       <Badge bg="warning" className="px-2 py-1" style={{ borderRadius: '8px' }}>
-                        <CIcon icon={cilTrendingUp} size="sm" />
+                        <CIcon icon={cilArrowTop} size="sm" />
                         {calculateGrowth(systemTotals.barcodes.total)}%
                       </Badge>
                       <small className="text-muted">{systemTotals.barcodes.scanned} Scanned</small>
@@ -414,7 +414,7 @@ const Dashboard = () => {
                     <h3 className="mb-2 fw-bold">{systemTotals.reports.total}</h3>
                     <div className="d-flex align-items-center gap-2">
                       <Badge bg="success" className="px-2 py-1" style={{ borderRadius: '8px' }}>
-                        <CIcon icon={cilTrendingUp} size="sm" />
+                        <CIcon icon={cilArrowTop} size="sm" />
                         {calculateGrowth(systemTotals.reports.total)}%
                       </Badge>
                       <small className="text-muted">{systemTotals.reports.generated} Generated</small>
@@ -561,7 +561,7 @@ const Dashboard = () => {
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
                     <h5 className="mb-0 fw-bold">
-                      <CIcon icon={cilTrendingUp} className="me-2" />
+                      <CIcon icon={cilArrowTop} className="me-2" />
                       Asset Overview
                     </h5>
                     <small className="text-muted">Asset status distribution</small>
