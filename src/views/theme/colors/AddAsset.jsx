@@ -1,5 +1,42 @@
 import React, { useState, useEffect } from 'react'
-import { Form, Button, Col, Row,Modal } from 'react-bootstrap'
+import { 
+  Form, 
+  Button, 
+  Col, 
+  Row, 
+  Modal, 
+  Card, 
+  CardBody, 
+  CardHeader, 
+  Alert,
+  Badge,
+  Container,
+  ProgressBar
+} from 'react-bootstrap'
+import CIcon from '@coreui/icons-react'
+import { 
+  cilPlus, 
+  cilFile, 
+  cilDownload, 
+  cilUpload, 
+  cilSave, 
+  cilX,
+  cilCheck,
+  cilWarning,
+  cilInfo,
+  cilCalendar,
+  cilLocationPin,
+  cilBuilding,
+  cilSettings,
+  cilTag,
+  cilMoney,
+  cilChart,
+  cilUser,
+  cilShieldAlt,
+  cilBarcode,
+  cilPencil,
+  cilTrash
+} from '@coreui/icons'
 import axios from 'axios'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -671,227 +708,451 @@ const AddAsset = () => {
   }
 
   return (
-    <Form onSubmit={handleSubmit}>
-      {/* Modal to prompt for license if trial expired */}
+    <div className="add-asset-form" style={{
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      minHeight: '100vh',
+      padding: '2rem'
+    }}>
+      <Container>
+        {/* Header */}
+        <div className="text-center mb-4">
+          <h2 className="mb-2" style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: '700'
+          }}>
+            📦 Add New Asset
+          </h2>
+          <p className="text-muted">Create and manage your organization's assets</p>
+        </div>
+
+        {/* Trial Status Alert */}
+        {!isTrialActive && (
+          <Alert 
+            variant="warning" 
+            className="border-0 shadow-sm mb-4"
+            style={{ borderRadius: '12px' }}
+          >
+            <div className="d-flex align-items-center gap-2">
+              <CIcon icon={cilWarning} />
+              <strong>Trial Expired:</strong> Please purchase a license to continue using the system.
+            </div>
+          </Alert>
+        )}
+
+        {/* Import Section */}
+        {isTrialActive && (
+          <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '16px' }}>
+            <CardHeader 
+              className="bg-white border-0 py-3" 
+              style={{ borderRadius: '16px 16px 0 0' }}
+            >
+              <h5 className="mb-0 fw-bold">
+                <CIcon icon={cilUpload} className="me-2" />
+                Bulk Import Assets
+              </h5>
+            </CardHeader>
+            <CardBody className="p-4">
+              <Row className="align-items-end">
+                <Col md={8}>
+                  <Form.Group>
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilFile} className="me-2" />
+                      Import Excel File
+                    </Form.Label>
+                    <Form.Control 
+                      type="file" 
+                      accept=".xlsx" 
+                      onChange={handleFileChange}
+                      style={{ borderRadius: '8px' }}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={4} className="d-flex gap-2">
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm" 
+                    onClick={handleDownloadTemplate}
+                    style={{ borderRadius: '8px' }}
+                  >
+                    <CIcon icon={cilDownload} className="me-1" />
+                    Template
+                  </Button>
+                  {assetsArray.length > 0 && (
+                    <Button 
+                      variant="success" 
+                      size="sm" 
+                      onClick={handleAddToDatabase}
+                      style={{ borderRadius: '8px' }}
+                    >
+                      <CIcon icon={cilSave} className="me-1" />
+                      Import ({assetsArray.length})
+                    </Button>
+                  )}
+                </Col>
+              </Row>
+              
+              {/* Import Progress */}
+              {assetsArray.length > 0 && (
+                <div className="mt-3">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <small className="text-muted">Ready to import</small>
+                    <Badge bg="success">{assetsArray.length} assets</Badge>
+                  </div>
+                  <ProgressBar 
+                    now={100} 
+                    variant="success" 
+                    style={{ height: '6px', borderRadius: '3px' }}
+                  />
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Asset Form */}
+        <Card className="border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+          <CardHeader 
+            className="bg-white border-0 py-3" 
+            style={{ borderRadius: '16px 16px 0 0' }}
+          >
+            <h5 className="mb-0 fw-bold">
+              <CIcon icon={cilPlus} className="me-2" />
+              Asset Information
+            </h5>
+          </CardHeader>
+          <CardBody className="p-4">
+            <Form onSubmit={handleSubmit}>
+              <Row className="mb-3">
+                <Form.Group as={Col} md="6" controlId="assetName">
+                  <Form.Label className="fw-semibold">
+                    <CIcon icon={cilTag} className="me-2" />
+                    Asset Name *
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="assetName"
+                    value={assetData.assetName}
+                    onChange={handleChange}
+                    placeholder="Enter asset name"
+                    style={{ borderRadius: '8px' }}
+                    required
+                  />
+                </Form.Group>
+                {isTrialActive && (
+                <Form.Group as={Col} md="6" controlId="assetType">
+                  <Form.Label className="fw-semibold">
+                    <CIcon icon={cilSettings} className="me-2" />
+                    Asset Type *
+                  </Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="assetType"
+                    value={assetData.assetType}
+                    onChange={handleChange}
+                    style={{ borderRadius: '8px' }}
+                    required
+                  >
+                    <option value="">Select Asset Type</option>
+                    {Array.isArray(assetCategories) && assetCategories.length > 0 ? (
+                      assetCategories.map((category) => {
+                        console.log('Rendering category:', category)
+                        return (
+                          <option key={category.id} value={category.name}>
+                            {category.name || 'Unnamed Category'}
+                          </option>
+                        )
+                      })
+                    ) : (
+                      <option value="" disabled>
+                        {assetCategories.length === 0 ? 'No categories available' : 'Loading categories...'}
+                      </option>
+                    )}
+                  </Form.Control>
+                </Form.Group>
+                )}
+              </Row>
+
+              {isTrialActive && (
+              <>
+                <Row className="mb-3">
+                  <Form.Group as={Col} md="6" controlId="serialNumber">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilBarcode} className="me-2" />
+                      Serial Number *
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="serialNumber"
+                      value={assetData.serialNumber}
+                      onChange={handleChange}
+                      placeholder="Enter serial number"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group as={Col} md="6" controlId="description">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilInfo} className="me-2" />
+                      Description *
+                    </Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      name="description"
+                      value={assetData.description}
+                      onChange={handleChange}
+                      placeholder="Enter asset description"
+                      style={{ borderRadius: '8px' }}
+                      rows={3}
+                      required
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className="mb-3">
+                  <Form.Group as={Col} md="6" controlId="purchaseDate">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilCalendar} className="me-2" />
+                      Purchase Date *
+                    </Form.Label>
+                    <DatePicker
+                      selected={assetData.purchaseDate}
+                      onChange={(date) => setAssetData({ ...assetData, purchaseDate: date })}
+                      dateFormat="MM/dd/yyyy"
+                      placeholderText="Select a date"
+                      className="form-control"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group as={Col} md="6" controlId="purchasePrice">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilMoney} className="me-2" />
+                      Purchase Price *
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="purchasePrice"
+                      value={assetData.purchasePrice}
+                      onChange={handleChange}
+                      placeholder="Enter purchase price"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className="mb-3">
+                  <Form.Group as={Col} md="6" controlId="marketValue">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilChart} className="me-2" />
+                      Market Value *
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="marketValue"
+                      value={assetData.marketValue}
+                      onChange={handleChange}
+                      placeholder="Enter market value"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group as={Col} md="6" controlId="manufacturer">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilBuilding} className="me-2" />
+                      Manufacturer *
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="manufacturer"
+                      value={assetData.manufacturer}
+                      onChange={handleChange}
+                      placeholder="Enter manufacturer"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className="mb-3">
+                  <Form.Group as={Col} md="6" controlId="modelNumber">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilTag} className="me-2" />
+                      Model Number *
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="modelNumber"
+                      value={assetData.modelNumber}
+                      onChange={handleChange}
+                      placeholder="Enter model number"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group as={Col} md="6" controlId="institutionName">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilBuilding} className="me-2" />
+                      Institution Name *
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="institutionName"
+                      value={assetData.institutionName}
+                      onChange={handleChange}
+                      placeholder="Enter institution name"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className="mb-3">
+                  <Form.Group as={Col} md="6" controlId="department">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilUser} className="me-2" />
+                      Department *
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="department"
+                      value={assetData.department}
+                      onChange={handleChange}
+                      placeholder="Enter department"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group as={Col} md="6" controlId="functionalArea">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilSettings} className="me-2" />
+                      Functional Area *
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="functionalArea"
+                      value={assetData.functionalArea}
+                      onChange={handleChange}
+                      placeholder="Enter functional area"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                </Row>
+
+                <Row className="mb-3">
+                  <Form.Group as={Col} md="6" controlId="location">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilLocationPin} className="me-2" />
+                      Location *
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="location"
+                      value={assetData.location}
+                      onChange={handleChange}
+                      placeholder="Enter location"
+                      style={{ borderRadius: '8px' }}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group as={Col} md="6" controlId="logo">
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilFile} className="me-2" />
+                      Asset Logo
+                    </Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setAssetData({ ...assetData, logo: e.target.files[0] })}
+                      style={{ borderRadius: '8px' }}
+                    />
+                  </Form.Group>
+                </Row>
+              </>
+              )}
+
+              {/* Submit Button */}
+              <div className="text-center mt-4">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="px-5 py-2"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <CIcon icon={cilPlus} className="me-2" />
+                  Add Asset
+                </Button>
+              </div>
+            </Form>
+          </CardBody>
+        </Card>
+      </Container>
+
+      {/* Trial Expired Modal */}
       <Modal show={showModal} centered backdrop="static" keyboard={false}>
-        <Modal.Header>
-          <Modal.Title>License Required</Modal.Title>
+        <Modal.Header className="bg-warning text-white">
+          <Modal.Title>
+            <CIcon icon={cilWarning} className="me-2" />
+            License Required
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Your trial period has expired. Please purchase a license to continue using the system.
+        <Modal.Body className="p-4">
+          <div className="text-center">
+            <CIcon icon={cilShieldAlt} size="3xl" className="text-warning mb-3" />
+            <h5>Your trial period has expired</h5>
+            <p className="text-muted">
+              Please purchase a license to continue using the system and access all features.
+            </p>
+          </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => (window.location.href = 'https://moowigroup.com/contact-us/')}>
+          <Button 
+            variant="warning" 
+            onClick={() => (window.location.href = 'https://moowigroup.com/contact-us/')}
+            style={{ borderRadius: '8px' }}
+          >
+            <CIcon icon={cilMoney} className="me-2" />
             Purchase License
           </Button>
         </Modal.Footer>
       </Modal>
-      <h2 className="mb-2">Add New Asset</h2>
-      <div className="mb-3">
-        <Button variant="link" size="sm" onClick={handleDownloadTemplate}>
-          Download Template
-        </Button>
-      </div>
-      {isTrialActive && (
-      <Row className="mb-3">
-        <Form.Group as={Col} md="6" controlId="excelFile">
-          <Form.Label>Import Excel File</Form.Label>
-          <Form.Control type="file" accept=".xlsx" onChange={handleFileChange} />
-        </Form.Group>
 
-        {/* Button to add imported assets to the database */}
-        {assetsArray.length > 0 && (
-          <Button type="button" className="btn-primary" onClick={handleAddToDatabase}>
-            Add Imported Assets to Database
-          </Button>
-        )}
-      </Row>
-      )}
-      <Row className="mb-3">
-        <Form.Group as={Col} md="6" controlId="assetName">
-          <Form.Label>Asset Name</Form.Label>
-          <Form.Control
-            type="text"
-            name="assetName"
-            value={assetData.assetName}
-            onChange={handleChange}
-            placeholder="Enter asset name"
-            required
-          />
-        </Form.Group>
-        {isTrialActive && (
-        <Form.Group as={Col} md="6" controlId="assetType">
-          <Form.Label>Asset Type</Form.Label>
-          <Form.Control
-            as="select"
-            name="assetType"
-            value={assetData.assetType}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Asset Type</option>
-            {Array.isArray(assetCategories) && assetCategories.length > 0 ? (
-              assetCategories.map((category) => {
-                console.log('Rendering category:', category)
-                return (
-                  <option key={category.id} value={category.name}>
-                    {category.name || 'Unnamed Category'}
-                  </option>
-                )
-              })
-            ) : (
-              <option value="" disabled>
-                {assetCategories.length === 0 ? 'No categories available' : 'Loading categories...'}
-              </option>
-            )}
-          </Form.Control>
-        </Form.Group>
-        )}
-      </Row>
-
-      {isTrialActive && (
-      <Row className="mb-3">
-        {/* Add more Form.Group components for other fields */}
-        {/* For example: */}
-        <Form.Group as={Col} md="6" controlId="serialNumber">
-          <Form.Label>Serial Number</Form.Label>
-          <Form.Control
-            type="text"
-            name="serialNumber"
-            value={assetData.serialNumber}
-            onChange={handleChange}
-            placeholder="Enter serial number"
-            required
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} md="6" controlId="description">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            as="textarea"
-            name="description"
-            value={assetData.description}
-            onChange={handleChange}
-            placeholder="Enter asset description"
-            required
-          />
-        </Form.Group>
-
-        <Form.Group as={Col} md="6" controlId="purchaseDate">
-          <Form.Label>Purchase Date</Form.Label>
-          <DatePicker
-            selected={assetData.purchaseDate}
-            onChange={(date) => setAssetData({ ...assetData, purchaseDate: date })}
-            dateFormat="MM/dd/yyyy"
-            placeholderText="Select a date"
-            className="form-control"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="purchasePrice">
-          <Form.Label>Purchase Price</Form.Label>
-          <Form.Control
-            type="text"
-            name="purchasePrice"
-            value={assetData.purchasePrice}
-            onChange={handleChange}
-            placeholder="Enter Purchase Price"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="marketValue">
-          <Form.Label>Market Value</Form.Label>
-          <Form.Control
-            type="text"
-            name="marketValue"
-            value={assetData.marketValue}
-            onChange={handleChange}
-            placeholder="Enter Market Value"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="manufacturer">
-          <Form.Label>Manufacturer</Form.Label>
-          <Form.Control
-            type="text"
-            name="manufacturer"
-            value={assetData.manufacturer}
-            onChange={handleChange}
-            placeholder="Enter Manufacturer"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="modelNumber">
-          <Form.Label>Model Number</Form.Label>
-          <Form.Control
-            type="text"
-            name="modelNumber"
-            value={assetData.modelNumber}
-            onChange={handleChange}
-            placeholder="Enter Model Number"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="institutionName">
-          <Form.Label>Institution Name</Form.Label>
-          <Form.Control
-            type="text"
-            name="institutionName"
-            value={assetData.institutionName}
-            onChange={handleChange}
-            placeholder="Enter name of Institution"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="department">
-          <Form.Label>Department</Form.Label>
-          <Form.Control
-            type="text"
-            name="department"
-            value={assetData.department}
-            onChange={handleChange}
-            placeholder="Enter Department"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="functionalArea">
-          <Form.Label>Functional Area</Form.Label>
-          <Form.Control
-            type="text"
-            name="functionalArea"
-            value={assetData.functionalArea}
-            onChange={handleChange}
-            placeholder="Enter Functional Area"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="location">
-          <Form.Label>Location</Form.Label>
-          <Form.Control
-            type="text"
-            name="location"
-            value={assetData.location}
-            onChange={handleChange}
-            placeholder="Enter Location"
-            required
-          />
-        </Form.Group>
-        <Form.Group as={Col} md="6" controlId="logo">
-          <Form.Label>Logo</Form.Label>
-          <Form.Control
-            type="file"
-            accept="image/*"
-            onChange={(e) => setAssetData({ ...assetData, logo: e.target.files[0] })}
-          />
-        </Form.Group>
-      </Row>
-      )}
-
-      {/* Add more Form.Group components for other fields */}
-      <Button type="submit" className="btn-primary" onClick={handleSubmit}>
-        Add Asset
-      </Button>
-    </Form>
+      <style jsx>{`
+        .add-asset-form {
+          transition: all 0.3s ease;
+        }
+        
+        .card {
+          transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+        
+        .form-control:focus {
+          border-color: #667eea;
+          box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+      `}</style>
+    </div>
   )
 }
 
