@@ -15,7 +15,7 @@ import {
   CProgress,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilBell, cilEnvelopeOpen, cilList, cilMenu, cilReload, cilDownload } from '@coreui/icons'
+import { cilBell, cilEnvelopeOpen, cilList, cilMenu, cilReload, cilCloudDownload } from '@coreui/icons'
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
@@ -120,7 +120,7 @@ const AppHeader = () => {
               onClick={handleDownloadUpdate}
               className="me-2"
             >
-              <CIcon icon={cilDownload} />
+              <CIcon icon={cilCloudDownload} />
               Download Update
             </CButton>
           )}
