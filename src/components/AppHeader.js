@@ -12,9 +12,10 @@ import {
   CNavItem,
   CButton,
   CBadge,
+  CProgress,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilBell, cilEnvelopeOpen, cilList, cilMenu, cilReload } from '@coreui/icons'
+import { cilBell, cilEnvelopeOpen, cilList, cilMenu, cilReload, cilDownload } from '@coreui/icons'
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
@@ -61,6 +62,14 @@ const AppHeader = () => {
     }
   }
 
+  const handleDownloadUpdate = async () => {
+    try {
+      await updateChecker.downloadUpdate()
+    } catch (error) {
+      console.error('Failed to download update:', error)
+    }
+  }
+
   return (
     <CHeader position="sticky" className="mb-4">
       <CContainer fluid className="d-flex justify-content-between align-items-center">
@@ -68,25 +77,53 @@ const AppHeader = () => {
           <CBadge color="secondary" className="me-2">
             v{updateStatus?.currentVersion || '4.5.1'}
           </CBadge>
-          {updateStatus?.updateAvailable && (
+          {updateStatus?.updateAvailable && !updateStatus?.isDownloading && (
             <CBadge color="success" className="me-2">
               Update Available: v{updateStatus?.latestVersion}
+            </CBadge>
+          )}
+          {updateStatus?.isDownloading && (
+            <CBadge color="warning" className="me-2">
+              Downloading: {updateStatus?.downloadProgress || 0}%
             </CBadge>
           )}
         </div>
         
         <div className="d-flex align-items-center">
+          {updateStatus?.isDownloading && (
+            <div className="me-3" style={{ width: '150px' }}>
+              <CProgress 
+                value={updateStatus?.downloadProgress || 0} 
+                color="success"
+                size="sm"
+              />
+            </div>
+          )}
+          
           <CButton 
             color="outline" 
             variant="ghost" 
             size="sm" 
             onClick={handleCheckUpdate}
-            disabled={isChecking}
+            disabled={isChecking || updateStatus?.isDownloading}
             className="me-2"
           >
             <CIcon icon={cilReload} className={isChecking ? 'spinner-border spinner-border-sm' : ''} />
             {isChecking ? 'Checking...' : 'Check Updates'}
           </CButton>
+
+          {updateStatus?.updateAvailable && !updateStatus?.isDownloading && (
+            <CButton 
+              color="success" 
+              variant="outline" 
+              size="sm" 
+              onClick={handleDownloadUpdate}
+              className="me-2"
+            >
+              <CIcon icon={cilDownload} />
+              Download Update
+            </CButton>
+          )}
           
           <CButton color="danger" variant="outline" size="sm" onClick={handleLogout}>
             Logout

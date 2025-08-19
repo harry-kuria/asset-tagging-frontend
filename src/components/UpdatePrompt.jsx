@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Button, Alert, Badge } from 'react-bootstrap'
+import { Modal, Button, Alert, Badge, ProgressBar } from 'react-bootstrap'
 import CIcon from '@coreui/icons-react'
-import { cilReload } from '@coreui/icons'
+import { cilReload, cilCheckCircle, cilXCircle } from '@coreui/icons'
 import updateChecker from '../utils/updateChecker'
 
 const UpdatePrompt = () => {
@@ -10,6 +10,10 @@ const UpdatePrompt = () => {
   const [versionInfo, setVersionInfo] = useState(null)
   const [updateInfo, setUpdateInfo] = useState(null)
   const [isChecking, setIsChecking] = useState(false)
+  const [downloadProgress, setDownloadProgress] = useState(0)
+  const [showNoUpdate, setShowNoUpdate] = useState(false)
+  const [noUpdateMessage, setNoUpdateMessage] = useState('')
+  const [showInstallMessage, setShowInstallMessage] = useState(false)
 
   useEffect(() => {
     // Start OTA update checking
@@ -21,12 +25,30 @@ const UpdatePrompt = () => {
         case 'UPDATE_AVAILABLE':
           setUpdateInfo(event)
           setShow(true)
+          setShowNoUpdate(false)
+          break
+        case 'NO_UPDATE_AVAILABLE':
+          setNoUpdateMessage(event.message)
+          setShowNoUpdate(true)
+          setShow(false)
           break
         case 'UPDATE_DOWNLOAD_START':
           setDownloading(true)
+          setDownloadProgress(0)
+          break
+        case 'UPDATE_DOWNLOAD_PROGRESS':
+          setDownloadProgress(event.progress)
           break
         case 'UPDATE_DOWNLOAD_COMPLETE':
           setDownloading(false)
+          setDownloadProgress(100)
+          break
+        case 'UPDATE_READY_TO_INSTALL':
+          setShowInstallMessage(true)
+          break
+        case 'UPDATE_DOWNLOAD_ERROR':
+          setDownloading(false)
+          console.error('Update download failed:', event.error)
           break
         case 'UPDATE_CHECK_ERROR':
           console.error('OTA Update check failed:', event.error)
@@ -81,12 +103,17 @@ const UpdatePrompt = () => {
   const handleManualCheck = async () => {
     try {
       setIsChecking(true)
+      setShowNoUpdate(false)
       await updateChecker.forceCheck()
     } catch (error) {
       console.error('Manual update check failed:', error)
     } finally {
       setIsChecking(false)
     }
+  }
+
+  const handleRelaunch = () => {
+    updateChecker.relaunchApp()
   }
 
   const getCurrentVersion = () => {
@@ -99,6 +126,75 @@ const UpdatePrompt = () => {
 
   const getReleaseNotes = () => {
     return updateInfo?.releaseNotes || versionInfo?.releaseNotes || ''
+  }
+
+  // No Update Available Modal
+  if (showNoUpdate) {
+    return (
+      <Modal show={showNoUpdate} onHide={() => setShowNoUpdate(false)} size="md" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <CIcon icon={cilCheckCircle} className="me-2 text-success" />
+            System Up to Date
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="text-center">
+            <CIcon icon={cilCheckCircle} size="3xl" className="text-success mb-3" />
+            <h5>No Updates Available</h5>
+            <p className="text-muted">
+              Your system is running the latest version ({getCurrentVersion()}).
+            </p>
+            <p className="text-muted">
+              {noUpdateMessage}
+            </p>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowNoUpdate(false)}>
+            Close
+          </Button>
+          <Button 
+            variant="outline-primary" 
+            onClick={handleManualCheck}
+            disabled={isChecking}
+          >
+            {isChecking ? 'Checking...' : 'Check Again'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+
+  // Install Message Modal
+  if (showInstallMessage) {
+    return (
+      <Modal show={showInstallMessage} onHide={() => setShowInstallMessage(false)} size="md" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <CIcon icon={cilCheckCircle} className="me-2 text-success" />
+            Update Downloaded
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="text-center">
+            <CIcon icon={cilCheckCircle} size="3xl" className="text-success mb-3" />
+            <h5>Update Ready to Install</h5>
+            <p>
+              The update has been downloaded successfully. Please install the downloaded file and restart the application.
+            </p>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowInstallMessage(false)}>
+            Later
+          </Button>
+          <Button variant="primary" onClick={handleRelaunch}>
+            Restart Application
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    )
   }
 
   if (!show) return null
@@ -117,8 +213,15 @@ const UpdatePrompt = () => {
             <div className="spinner-border text-primary mb-3" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
+            <h5>Downloading Update...</h5>
+            <ProgressBar 
+              now={downloadProgress} 
+              label={`${downloadProgress}%`}
+              className="mb-3"
+              variant="success"
+            />
             <p className="mb-0">
-              Downloading update{getLatestVersion() !== 'Unknown' ? ` ${getLatestVersion()}` : ''}...
+              Downloading update {getLatestVersion() !== 'Unknown' ? `v${getLatestVersion()}` : ''}...
             </p>
           </div>
         ) : (

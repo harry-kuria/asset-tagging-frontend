@@ -14,7 +14,10 @@ class UpdateChecker {
     this.updateAvailable = false
     this.latestVersion = null
     this.updateUrl = null
+    this.downloadUrl = null
     this.listeners = []
+    this.downloadProgress = 0
+    this.isDownloading = false
   }
 
   // Start periodic update checking
@@ -49,6 +52,9 @@ class UpdateChecker {
       this.latestVersion = latestRelease.tag_name.replace('v', '')
       this.updateUrl = latestRelease.html_url
       
+      // Find the download URL for the appropriate platform
+      this.downloadUrl = this.findDownloadUrl(latestRelease.assets)
+      
       // Compare versions
       if (this.isNewerVersion(this.latestVersion, CURRENT_VERSION)) {
         this.updateAvailable = true
@@ -58,11 +64,18 @@ class UpdateChecker {
           currentVersion: CURRENT_VERSION,
           latestVersion: this.latestVersion,
           updateUrl: this.updateUrl,
+          downloadUrl: this.downloadUrl,
           releaseNotes: latestRelease.body
         })
       } else {
         this.updateAvailable = false
         console.log('✅ System is up to date')
+        this.notifyListeners({
+          type: 'NO_UPDATE_AVAILABLE',
+          currentVersion: CURRENT_VERSION,
+          latestVersion: this.latestVersion,
+          message: 'No updates available'
+        })
       }
       
       this.lastCheck = new Date()
@@ -76,6 +89,28 @@ class UpdateChecker {
     } finally {
       this.isChecking = false
     }
+  }
+
+  // Find the appropriate download URL for the current platform
+  findDownloadUrl(assets) {
+    if (!assets || assets.length === 0) return null
+    
+    const platform = this.getPlatform()
+    const asset = assets.find(asset => {
+      const name = asset.name.toLowerCase()
+      return name.includes(platform)
+    })
+    
+    return asset ? asset.browser_download_url : null
+  }
+
+  // Get current platform
+  getPlatform() {
+    const userAgent = navigator.userAgent.toLowerCase()
+    if (userAgent.includes('win')) return 'win'
+    if (userAgent.includes('mac')) return 'mac'
+    if (userAgent.includes('linux')) return 'linux'
+    return 'win' // default
   }
 
   // Compare version strings
@@ -123,7 +158,10 @@ class UpdateChecker {
       updateAvailable: this.updateAvailable,
       lastCheck: this.lastCheck,
       isChecking: this.isChecking,
-      updateUrl: this.updateUrl
+      isDownloading: this.isDownloading,
+      downloadProgress: this.downloadProgress,
+      updateUrl: this.updateUrl,
+      downloadUrl: this.downloadUrl
     }
   }
 
@@ -132,27 +170,70 @@ class UpdateChecker {
     await this.checkForUpdates()
   }
 
-  // Download and install update (for Electron apps)
+  // Download update with progress tracking
   async downloadUpdate() {
-    if (!this.updateAvailable || !this.updateUrl) {
-      throw new Error('No update available')
+    if (!this.updateAvailable || !this.downloadUrl) {
+      throw new Error('No update available or download URL not found')
+    }
+
+    if (this.isDownloading) {
+      throw new Error('Download already in progress')
     }
 
     try {
-      console.log('📥 Downloading update...')
+      this.isDownloading = true
+      this.downloadProgress = 0
+      
+      console.log('📥 Starting update download...')
       this.notifyListeners({
         type: 'UPDATE_DOWNLOAD_START',
-        updateUrl: this.updateUrl
+        downloadUrl: this.downloadUrl
       })
 
-      // For web apps, redirect to the update URL
-      // For Electron apps, this would trigger the auto-updater
-      window.open(this.updateUrl, '_blank')
-      
+      // For Electron apps, use the built-in updater
+      if (window.moowiUpdater) {
+        window.moowiUpdater.downloadUpdate()
+        return
+      }
+
+      // For web apps, download the file
+      const response = await axios.get(this.downloadUrl, {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            this.downloadProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            this.notifyListeners({
+              type: 'UPDATE_DOWNLOAD_PROGRESS',
+              progress: this.downloadProgress
+            })
+          }
+        }
+      })
+
+      // Create download link and trigger download
+      const blob = new Blob([response.data])
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `Moowi-Installer-${this.latestVersion}.exe`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      this.downloadProgress = 100
       this.notifyListeners({
         type: 'UPDATE_DOWNLOAD_COMPLETE',
-        updateUrl: this.updateUrl
+        downloadUrl: this.downloadUrl
       })
+
+      // Show relaunch message
+      setTimeout(() => {
+        this.notifyListeners({
+          type: 'UPDATE_READY_TO_INSTALL',
+          message: 'Update downloaded successfully. Please install the downloaded file and restart the application.'
+        })
+      }, 1000)
 
     } catch (error) {
       console.error('❌ Error downloading update:', error)
@@ -161,6 +242,18 @@ class UpdateChecker {
         error: error.message
       })
       throw error
+    } finally {
+      this.isDownloading = false
+    }
+  }
+
+  // Relaunch application (for Electron)
+  relaunchApp() {
+    if (window.moowiUpdater) {
+      window.moowiUpdater.quitAndInstall()
+    } else {
+      // For web apps, reload the page
+      window.location.reload()
     }
   }
 }
