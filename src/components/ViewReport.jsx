@@ -10,6 +10,41 @@ import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { endpoints } from '../config/api'
 import { showApiError, showApiSuccess } from '../utils/toast'
 
+// Create axios instance with proper timeout and auth headers
+const axiosInstance = axios.create({
+  timeout: 30000, // 30 seconds timeout
+})
+
+// Request interceptor to add auth token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const authToken = localStorage.getItem('authToken')
+    if (authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// Response interceptor to handle auth errors
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired, clear storage and redirect to login
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('userRoles')
+      localStorage.removeItem('currentUser')
+      localStorage.removeItem('currentCompany')
+      window.location.href = '/'
+    }
+    return Promise.reject(error)
+  }
+)
+
 const ViewReport = () => {
   const [filters, setFilters] = useState({
     assetType: '',
@@ -53,7 +88,7 @@ const ViewReport = () => {
 
   const handleGenerateReport = async () => {
     try {
-      const response = await axios.get(endpoints.generateReport, {
+      const response = await axiosInstance.get(endpoints.generateReport, {
         params: {
           assetType: selectedAssetType,
           location: filters.location,
@@ -92,7 +127,7 @@ const ViewReport = () => {
   const generateExcelFile = async (reportData) => {
     try {
       // Fetch assets associated with the selected institution
-      const assetResponse = await axios.post(endpoints.fetchAssetsByInstitution, {
+      const assetResponse = await axiosInstance.post(endpoints.fetchAssetsByInstitution, {
         institutionName: filters.institutionName,
       })
       const { success, assets } = assetResponse.data
@@ -189,7 +224,7 @@ const ViewReport = () => {
   useEffect(() => {
     const fetchAssetCategories = async () => {
       try {
-        const response = await axios.get(endpoints.categories)
+        const response = await axiosInstance.get(endpoints.categories)
         // Ensure we have an array of data
         const data = Array.isArray(response.data) ? response.data : response.data?.data || []
         setAssetCategories(data)
@@ -206,7 +241,7 @@ const ViewReport = () => {
   useEffect(() => {
     const fetchManufacturerCategories = async () => {
       try {
-        const manufacturerResponse = await axios.get(endpoints.manufacturers)
+        const manufacturerResponse = await axiosInstance.get(endpoints.manufacturers)
         // Ensure we have an array of data
         const data = Array.isArray(manufacturerResponse.data) ? manufacturerResponse.data : manufacturerResponse.data?.data || []
         setManufacturers(data)
@@ -227,7 +262,7 @@ const ViewReport = () => {
   useEffect(() => {
     const fetchInstitutions = async () => {
       try {
-        const response = await axios.get(endpoints.institutions)
+        const response = await axiosInstance.get(endpoints.institutions)
         // Ensure we have an array of data
         const data = Array.isArray(response.data) ? response.data : response.data?.data || []
         setInstitutionList(data)
@@ -239,7 +274,7 @@ const ViewReport = () => {
     }
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get(endpoints.departments)
+        const response = await axiosInstance.get(endpoints.departments)
         // Ensure we have an array of data
         const data = Array.isArray(response.data) ? response.data : response.data?.data || []
         setDepartments(data)
@@ -252,7 +287,7 @@ const ViewReport = () => {
 
     const fetchFunctionalAreas = async () => {
       try {
-        const response = await axios.get(endpoints.functionalAreas)
+        const response = await axiosInstance.get(endpoints.functionalAreas)
         // Ensure we have an array of data
         const data = Array.isArray(response.data) ? response.data : response.data?.data || []
         setFunctionalAreas(data)
