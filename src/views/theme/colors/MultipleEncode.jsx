@@ -30,7 +30,7 @@ import {
   cilSettings,
   cilFilter,
   cilList,
-  cilTable,
+  cilViewColumn,
   cilPrint,
   cilCloudDownload,
   cilArrowRight,
@@ -623,7 +623,7 @@ const MultipleEncode = () => {
               <div className="d-flex justify-content-between align-items-center">
                 <div>
                   <h5 className="mb-0 fw-bold">
-                    <CIcon icon={cilTable} className="me-2" />
+                    <CIcon icon={cilViewColumn} className="me-2" />
                     Generated Barcodes
                   </h5>
                   <small className="text-muted">{generatedBarcodes.length} barcodes generated</small>
