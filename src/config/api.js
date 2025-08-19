@@ -45,9 +45,9 @@ export const endpoints = {
   searchAssets: `${API_URL}/searchAssets`,
   
   // Reports
-  generateReport: `${API_URL}/generateReport`,
-  generateInvoice: `${API_URL}/generate_invoice`,
-  fetchAssetsByInstitution: `${API_URL}/fetchAssetsByInstitution`,
+  generateReport: `${API_URL}/api/generateReport`,
+  generateInvoice: `${API_URL}/api/reports/invoice`,
+  fetchAssetsByInstitution: `${API_URL}/api/fetchAssetsByInstitution`,
   
   // Dashboard endpoints
   userInfo: `${API_URL}/user/info`,
