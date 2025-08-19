@@ -106,7 +106,6 @@ const MultipleEncode = () => {
   const [institutionList, setInstitutionList] = useState([])
   const [generatedBarcodes, setGeneratedBarcodes] = useState([])
   const [generateForAllDepartments, setGenerateForAllDepartments] = useState(false)
-  const [generateForAllInstitutions, setGenerateForAllInstitutions] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(null)
   const handleDownloadBarcode = async (barcode) => {
     try {
@@ -129,14 +128,7 @@ const MultipleEncode = () => {
     setGenerationProgress(null)
     try {
       // Check if we have the required fields
-      if (generateForAllInstitutions) {
-        // For all institutions, no specific filters needed
-        setGenerationProgress('🚀 Starting heavy load test: Generating barcodes for ALL institutions...')
-      } else if (!filters.institution) {
-        setError('Please select an institution to generate barcodes.')
-        setIsLoading(false)
-        return
-      } else if (generateForAllDepartments) {
+      if (generateForAllDepartments) {
         if (!filters.institution) {
           setError('Please select an institution to generate barcodes for all departments.')
           setIsLoading(false)
@@ -152,14 +144,7 @@ const MultipleEncode = () => {
       }
 
       let response
-      if (generateForAllInstitutions) {
-        // Generate barcodes for ALL institutions in the company (heavy load test)
-        setGenerationProgress('🚀 Heavy load test in progress: Generating barcodes for ALL institutions... This may take several minutes.')
-        response = await axiosInstance.post(
-          endpoints.generateBarcodesForAllInstitutions,
-          {} // No parameters needed - gets all assets for the company
-        )
-      } else if (generateForAllDepartments) {
+      if (generateForAllDepartments) {
         // Generate barcodes for all departments in the institution
         setGenerationProgress('Generating barcodes for all departments... This may take a moment for large datasets.')
         response = await axiosInstance.post(
@@ -194,8 +179,8 @@ const MultipleEncode = () => {
       setAssetDetails(assetDetails) // Assuming you have a state variable to store asset details
       
       // Show success message with details
-      if (generateForAllInstitutions) {
-        setGenerationProgress(`🚀 Heavy load test completed: Generated ${assetCount} barcodes across ${institutionCount} institutions`)
+      if (generateForAllDepartments) {
+        setGenerationProgress(`✅ Successfully generated ${assetCount} barcodes across ${totalPages} pages`)
       } else {
         setGenerationProgress(`✅ Successfully generated ${assetCount} barcodes across ${totalPages} pages`)
       }
@@ -363,7 +348,7 @@ const MultipleEncode = () => {
       )}
 
       <Form>
-        {!generateForAllInstitutions && (
+        {!generateForAllDepartments && (
           <Form.Group controlId="institution">
             <Form.Label>Institution</Form.Label>
             <Dropdown>
@@ -394,25 +379,10 @@ const MultipleEncode = () => {
             label="Generate barcodes for all departments in this institution"
             checked={generateForAllDepartments}
             onChange={(e) => setGenerateForAllDepartments(e.target.checked)}
-            disabled={generateForAllInstitutions}
           />
         </Form.Group>
 
-        <Form.Group controlId="generateForAllInstitutions" className="mb-3">
-          <Form.Check
-            type="checkbox"
-            label="🚀 HEAVY LOAD TEST: Generate barcodes for ALL institutions in company"
-            checked={generateForAllInstitutions}
-            onChange={(e) => {
-              setGenerateForAllInstitutions(e.target.checked)
-              if (e.target.checked) {
-                setGenerateForAllDepartments(false) // Disable the other option
-              }
-            }}
-          />
-        </Form.Group>
-
-        {!generateForAllDepartments && !generateForAllInstitutions && (
+        {!generateForAllDepartments && (
           <Form.Group controlId="department">
             <Form.Label>Department</Form.Label>
             <Dropdown>
@@ -469,11 +439,9 @@ const MultipleEncode = () => {
       >
         {isLoading 
           ? 'Generating...' 
-          : generateForAllInstitutions
-            ? '🚀 Start Heavy Load Test - Generate ALL Institution Barcodes'
-            : generateForAllDepartments 
-              ? `Generate Barcodes for All Departments in ${filters.institution || 'Selected Institution'}`
-              : 'Generate Barcodes'
+          : generateForAllDepartments 
+            ? `Generate Barcodes for All Departments in ${filters.institution || 'Selected Institution'}`
+            : 'Generate Barcodes'
         }
       </Button>
 

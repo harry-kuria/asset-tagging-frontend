@@ -67,7 +67,7 @@ const Dashboard = () => {
         setSystemTotals({
           users: { total: stats.total_users || 0, active: stats.total_users || 0 },
           assets: { total: stats.total_assets || 0, active: stats.active_assets || 0 },
-          barcodes: { total: 0, scanned: 0 }, // These aren't provided by the current backend
+          barcodes: { total: stats.total_barcodes || 0, scanned: stats.scanned_barcodes || 0 },
           reports: { total: 0, generated: 0 }  // These aren't provided by the current backend
         })
       } catch (error) {
@@ -87,14 +87,14 @@ const Dashboard = () => {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
-        label: 'Sales',
-        data: [30, 40, 35, 50, 45, 35],
+        label: 'Assets',
+        data: [systemTotals.assets.total, systemTotals.assets.total, systemTotals.assets.total, systemTotals.assets.total, systemTotals.assets.total, systemTotals.assets.total],
         borderColor: 'rgb(147, 51, 234)',
         tension: 0.4,
       },
       {
-        label: 'Revenue',
-        data: [25, 35, 30, 45, 40, 30],
+        label: 'Barcodes',
+        data: [systemTotals.barcodes.total, systemTotals.barcodes.total, systemTotals.barcodes.total, systemTotals.barcodes.total, systemTotals.barcodes.total, systemTotals.barcodes.total],
         borderColor: 'rgb(239, 68, 68)',
         tension: 0.4,
       },
@@ -102,13 +102,30 @@ const Dashboard = () => {
   }
 
   const doughnutData = {
-    labels: ['Sale', 'Distribute', 'Return'],
+    labels: ['Active Assets', 'Inactive Assets', 'Under Maintenance'],
     datasets: [{
-      data: [40, 35, 25],
+      data: [systemTotals.assets.active, systemTotals.assets.total - systemTotals.assets.active, 0],
       backgroundColor: [
-        'rgb(147, 51, 234)',
-        'rgb(234, 179, 8)',
-        'rgb(239, 68, 68)',
+        'rgb(34, 197, 94)', // Green for active
+        'rgb(239, 68, 68)', // Red for inactive
+        'rgb(234, 179, 8)', // Yellow for maintenance
+      ],
+    }],
+  }
+
+  // Barcode Statistics Chart Data
+  const barcodeData = {
+    labels: ['Total Barcodes', 'Scanned Barcodes', 'Unscanned Barcodes'],
+    datasets: [{
+      data: [
+        systemTotals.barcodes.total, 
+        systemTotals.barcodes.scanned, 
+        systemTotals.barcodes.total - systemTotals.barcodes.scanned
+      ],
+      backgroundColor: [
+        'rgb(59, 130, 246)', // Blue for total
+        'rgb(34, 197, 94)',  // Green for scanned
+        'rgb(156, 163, 175)', // Gray for unscanned
       ],
     }],
   }
@@ -266,6 +283,44 @@ const Dashboard = () => {
                   <Form.Select className="w-auto">
                     <option>Today</option>
                     <option>This Week</option>
+                  </Form.Select>
+                </div>
+                <Doughnut data={doughnutData} options={{ responsive: true }} />
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row className="mt-4">
+          {/* Barcode Statistics Chart */}
+          <Col lg={6}>
+            <Card>
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <div>
+                    <h4 className="mb-0">Barcode Statistics</h4>
+                    <small className="text-muted">Track your barcode usage</small>
+                  </div>
+                  <Form.Select className="w-auto">
+                    <option>This Month</option>
+                    <option>Last Month</option>
+                  </Form.Select>
+                </div>
+                <Doughnut data={barcodeData} options={{ responsive: true }} />
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col lg={6}>
+            <Card>
+              <Card.Body>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <div>
+                    <h4 className="mb-0">Asset Overview</h4>
+                    <small className="text-muted">Asset status distribution</small>
+                  </div>
+                  <Form.Select className="w-auto">
+                    <option>All Assets</option>
+                    <option>Active Only</option>
                   </Form.Select>
                 </div>
                 <Doughnut data={doughnutData} options={{ responsive: true }} />

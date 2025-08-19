@@ -12,6 +12,8 @@ import WidgetsBrand from './views/widgets/WidgetsBrand'
 import Dashboard from './views/dashboard/Dashboard'
 import { AuthProvider } from './components/AuthContext'
 import UpdatePrompt from './components/UpdatePrompt'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS
 
 const loading = (
   <div className="pt-3 text-center">
@@ -34,6 +36,7 @@ function App() {
       <AuthProvider>
         <Suspense fallback={loading}>
           <UpdatePrompt />
+          <ToastContainer />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />

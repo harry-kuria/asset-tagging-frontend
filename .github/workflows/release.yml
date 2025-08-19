@@ -88,4 +88,4 @@ jobs:
             dist-all/*.deb
             dist-all/*.blockmap
           draft: false
-          prerelease: false 
+          prerelease: false
