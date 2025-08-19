@@ -106,6 +106,7 @@ const MultipleEncode = () => {
   const [institutionList, setInstitutionList] = useState([])
   const [generatedBarcodes, setGeneratedBarcodes] = useState([])
   const [generateForAllDepartments, setGenerateForAllDepartments] = useState(false)
+  const [generationProgress, setGenerationProgress] = useState(null)
   const handleDownloadBarcode = async (barcode) => {
     try {
       const canvas = await html2canvas(/* Ref of the barcode element */)
@@ -124,6 +125,7 @@ const MultipleEncode = () => {
     // Fetch assets based on filters to generate barcodes
     setIsLoading(true)
     setError(null)
+    setGenerationProgress(null)
     try {
       // Check if we have the required fields
       if (!filters.institution) {
@@ -148,6 +150,8 @@ const MultipleEncode = () => {
         }
       }
 
+      setGenerationProgress('Generating barcodes... This may take a moment for large datasets.')
+
       let response
       if (generateForAllDepartments) {
         // Generate barcodes for all departments in the institution
@@ -168,15 +172,23 @@ const MultipleEncode = () => {
         )
       }
 
-      const { barcodeTags, assetDetails } = response.data.data
+      const { barcodeTags, assetDetails, assetCount, totalPages, barcodesPerPage } = response.data.data
       // Now you can use barcodeTags and assetDetails as needed
       console.log('Barcode Tags:', barcodeTags)
       console.log('Asset Details:', assetDetails)
+      console.log('Asset Count:', assetCount)
+      console.log('Total Pages:', totalPages)
+      console.log('Barcodes Per Page:', barcodesPerPage)
+      
       setGeneratedBarcodes(barcodeTags)
       setAssetDetails(assetDetails) // Assuming you have a state variable to store asset details
+      
+      // Show success message with details
+      setGenerationProgress(`✅ Successfully generated ${assetCount} barcodes across ${totalPages} pages`)
     } catch (error) {
       console.error('Error generating barcodes:', error)
       setError('Failed to generate barcodes. Please try again.')
+      setGenerationProgress(null)
     } finally {
       setIsLoading(false)
     }
@@ -432,46 +444,56 @@ const MultipleEncode = () => {
         }
       </Button>
 
+      {generationProgress && (
+        <div className="alert alert-info mt-3" role="alert">
+          {generationProgress}
+        </div>
+      )}
+
       {Array.isArray(generatedBarcodes) && generatedBarcodes.length > 0 && (
         <div className="mt-4" ref={barcodesComponentRef}>
-          <h3>Generated Barcodes</h3>
+          <h3>Generated Barcodes ({generatedBarcodes.length} total)</h3>
           <Card>
             <Card.Body>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Institution</th>
-                    <th>Department</th>
-                    <th>Location</th>
-                    <th>Barcode Code</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {generatedBarcodes.map((barcode, index) => {
-                    // Parse the formattedString to extract abbreviated values
-                    const formattedString = barcode.formattedString
-                    const parts = formattedString.split('|')
-                    const namePart = parts.find(part => part.startsWith('Name:'))?.split(':')[1] || barcode.assetDetails.assetName
-                    const instPart = parts.find(part => part.startsWith('Inst:'))?.split(':')[1] || barcode.assetDetails.institutionName
-                    const deptPart = parts.find(part => part.startsWith('Dept:'))?.split(':')[1] || barcode.assetDetails.department
-                    const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
-                    
-                    // Create clean barcode code without variable names
-                    const cleanCode = `${namePart.substring(0, 2).toUpperCase()}/${parts.find(part => part.startsWith('Type:'))?.split(':')[1]?.substring(0, 2).toUpperCase() || ''}/${instPart.substring(0, 2).toUpperCase()}/${deptPart.substring(0, 2).toUpperCase()}/${locPart.substring(0, 2).toUpperCase()}`
-                    
-                    return (
-                      <tr key={index}>
-                        <td>{namePart}</td>
-                        <td>{instPart}</td>
-                        <td>{deptPart}</td>
-                        <td>{locPart}</td>
-                        <td>{cleanCode}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+              <div className="table-responsive">
+                <table className="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Institution</th>
+                      <th>Department</th>
+                      <th>Location</th>
+                      <th>Barcode Code</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {generatedBarcodes.map((barcode, index) => {
+                      // Parse the formattedString to extract abbreviated values
+                      const formattedString = barcode.formattedString
+                      const parts = formattedString.split('|')
+                      const namePart = parts.find(part => part.startsWith('Name:'))?.split(':')[1] || barcode.assetDetails.assetName
+                      const instPart = parts.find(part => part.startsWith('Inst:'))?.split(':')[1] || barcode.assetDetails.institutionName
+                      const deptPart = parts.find(part => part.startsWith('Dept:'))?.split(':')[1] || barcode.assetDetails.department
+                      const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
+                      
+                      // Create clean barcode code without variable names
+                      const cleanCode = `${namePart.substring(0, 2).toUpperCase()}/${parts.find(part => part.startsWith('Type:'))?.split(':')[1]?.substring(0, 2).toUpperCase() || ''}/${instPart.substring(0, 2).toUpperCase()}/${deptPart.substring(0, 2).toUpperCase()}/${locPart.substring(0, 2).toUpperCase()}`
+                      
+                      return (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{namePart}</td>
+                          <td>{instPart}</td>
+                          <td>{deptPart}</td>
+                          <td>{locPart}</td>
+                          <td><code>{cleanCode}</code></td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </Card.Body>
           </Card>
         </div>
