@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Alert, Button, Modal, Badge } from 'react-bootstrap'
-import { CUpdateIcon } from '@coreui/icons-react'
+import CIcon from '@coreui/icons-react'
+import { cilReload } from '@coreui/icons'
 import updateChecker from '../utils/updateChecker'
 
 const UpdateNotification = () => {
@@ -68,7 +69,7 @@ const UpdateNotification = () => {
       <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 1050 }}>
         <Alert variant="info" className="mb-0 shadow-sm">
           <div className="d-flex align-items-center">
-            <CUpdateIcon className="me-2" />
+            <CIcon icon={cilReload} className="me-2" />
             <div className="flex-grow-1">
               <strong>Update Available!</strong>
               <br />
@@ -95,7 +96,7 @@ const UpdateNotification = () => {
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            <CUpdateIcon className="me-2" />
+            <CIcon icon={cilReload} className="me-2" />
             System Update Available
           </Modal.Title>
         </Modal.Header>

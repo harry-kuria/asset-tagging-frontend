@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Button, Alert, Badge } from 'react-bootstrap'
-import { CUpdateIcon } from '@coreui/icons-react'
+import CIcon from '@coreui/icons-react'
+import { cilReload } from '@coreui/icons'
 import updateChecker from '../utils/updateChecker'
 
 const UpdatePrompt = () => {
@@ -106,7 +107,7 @@ const UpdatePrompt = () => {
     <Modal show={show} onHide={() => setShow(false)} size="lg" centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          <CUpdateIcon className="me-2" />
+          <CIcon icon={cilReload} className="me-2" />
           System Update Available
         </Modal.Title>
       </Modal.Header>
