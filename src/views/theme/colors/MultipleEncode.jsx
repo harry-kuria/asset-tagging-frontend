@@ -61,7 +61,7 @@ const MultipleEncode = () => {
       const pdf = new jsPDF()
       pdf.text('Generated Barcodes', 20, 20)
       // Define the table headers
-      const headers = [['Name', 'Institution', 'Department', 'Location', 'Full Code']]
+      const headers = [['Name', 'Institution', 'Department', 'Location', 'Barcode Code']]
       // Extract table rows from generatedBarcodes
       const data = generatedBarcodes.map((barcode) => {
         const formattedString = barcode.formattedString
@@ -71,12 +71,15 @@ const MultipleEncode = () => {
         const deptPart = parts.find(part => part.startsWith('Dept:'))?.split(':')[1] || barcode.assetDetails.department
         const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
         
+        // Create clean barcode code without variable names
+        const cleanCode = `${parts.find(part => part.startsWith('ID:'))?.split(':')[1] || ''}-${namePart}-${parts.find(part => part.startsWith('Type:'))?.split(':')[1] || ''}-${instPart}-${deptPart}-${locPart}`
+        
         return [
           namePart,
           instPart,
           deptPart,
           locPart,
-          formattedString,
+          cleanCode,
         ]
       })
       // Add the table with autoTable
@@ -393,7 +396,7 @@ const MultipleEncode = () => {
                     <th>Institution</th>
                     <th>Department</th>
                     <th>Location</th>
-                    <th>Full Code</th>
+                    <th>Barcode Code</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -406,13 +409,16 @@ const MultipleEncode = () => {
                     const deptPart = parts.find(part => part.startsWith('Dept:'))?.split(':')[1] || barcode.assetDetails.department
                     const locPart = parts.find(part => part.startsWith('Loc:'))?.split(':')[1] || barcode.assetDetails.location
                     
+                    // Create clean barcode code without variable names
+                    const cleanCode = `${parts.find(part => part.startsWith('ID:'))?.split(':')[1] || ''}-${namePart}-${parts.find(part => part.startsWith('Type:'))?.split(':')[1] || ''}-${instPart}-${deptPart}-${locPart}`
+                    
                     return (
                       <tr key={index}>
                         <td>{namePart}</td>
                         <td>{instPart}</td>
                         <td>{deptPart}</td>
                         <td>{locPart}</td>
-                        <td>{formattedString}</td>
+                        <td>{cleanCode}</td>
                       </tr>
                     )
                   })}
