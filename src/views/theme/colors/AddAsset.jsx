@@ -17,8 +17,8 @@ import CIcon from '@coreui/icons-react'
 import { 
   cilPlus, 
   cilFile, 
-  cilDownload, 
-  cilUpload, 
+  cilCloudUpload, 
+  cilCloudDownload, 
   cilSave, 
   cilX,
   cilCheck,
@@ -749,7 +749,7 @@ const AddAsset = () => {
               style={{ borderRadius: '16px 16px 0 0' }}
             >
               <h5 className="mb-0 fw-bold">
-                <CIcon icon={cilUpload} className="me-2" />
+                <CIcon icon={cilCloudUpload} className="me-2" />
                 Bulk Import Assets
               </h5>
             </CardHeader>
@@ -776,7 +776,7 @@ const AddAsset = () => {
                     onClick={handleDownloadTemplate}
                     style={{ borderRadius: '8px' }}
                   >
-                    <CIcon icon={cilDownload} className="me-1" />
+                    <CIcon icon={cilCloudDownload} className="me-1" />
                     Template
                   </Button>
                   {assetsArray.length > 0 && (
