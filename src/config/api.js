@@ -19,10 +19,10 @@ export const endpoints = {
   checkTrialStatus: `${API_URL}/check-trial-status`,
   
   // Users
-  users: `${API_URL}/users`,
-  userById: (userId) => `${API_URL}/users/${userId}`,
-  addUser: `${API_URL}/addUser`,
-  userRoles: `${API_URL}/user_roles`,
+  users: `${API_URL}/api/users`,
+  userById: (userId) => `${API_URL}/api/users/${userId}`,
+  addUser: `${API_URL}/api/users`,
+  userRoles: `${API_URL}/api/user_roles`,
   
   // Assets
   assets: `${API_URL}/assets`,
