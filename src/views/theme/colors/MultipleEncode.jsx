@@ -1,5 +1,41 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Form, Button, ListGroup, Container, Modal, Dropdown, Card } from 'react-bootstrap'
+import { 
+  Form, 
+  Button, 
+  ListGroup, 
+  Container, 
+  Modal, 
+  Dropdown, 
+  Card, 
+  CardBody, 
+  CardHeader,
+  Alert,
+  Badge,
+  ProgressBar,
+  Row,
+  Col
+} from 'react-bootstrap'
+import CIcon from '@coreui/icons-react'
+import { 
+  cilBarcode,
+  cilSearch,
+  cilBuilding,
+  cilUser,
+  cilFile,
+  cilDownload,
+  cilPlus,
+  cilCheck,
+  cilWarning,
+  cilInfo,
+  cilSettings,
+  cilFilter,
+  cilList,
+  cilTable,
+  cilPrint,
+  cilCloudDownload,
+  cilArrowRight,
+  cilRefresh
+} from '@coreui/icons'
 import AssetDetails from './AssetDetails'
 import axios from 'axios'
 import html2canvas from 'html2canvas'
@@ -56,6 +92,7 @@ const MultipleEncode = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const barcodesComponentRef = useRef()
+
   const handleDownloadPdf = () => {
     try {
       const pdf = new jsPDF()
@@ -107,6 +144,7 @@ const MultipleEncode = () => {
   const [generatedBarcodes, setGeneratedBarcodes] = useState([])
   const [generateForAllDepartments, setGenerateForAllDepartments] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(null)
+  
   const handleDownloadBarcode = async (barcode) => {
     try {
       const canvas = await html2canvas(/* Ref of the barcode element */)
@@ -121,6 +159,7 @@ const MultipleEncode = () => {
       console.error('Error capturing barcode:', error)
     }
   }
+  
   const handleGenerateBarcodes = async () => {
     // Fetch assets based on filters to generate barcodes
     setIsLoading(true)
@@ -332,140 +371,291 @@ const MultipleEncode = () => {
   }
 
   return (
-    <Container className="mt-5">
-      <h2 className="mb-4">View Assets</h2>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
-          <button 
-            type="button" 
-            className="btn-close float-end" 
-            onClick={() => setError(null)}
-            aria-label="Close"
-          ></button>
+    <div className="multiple-encode" style={{
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      minHeight: '100vh',
+      padding: '2rem'
+    }}>
+      <Container fluid>
+        {/* Header */}
+        <div className="text-center mb-4">
+          <h2 className="mb-2" style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: '700'
+          }}>
+            🏷️ Barcode Generation
+          </h2>
+          <p className="text-muted">Generate and manage barcodes for your assets</p>
         </div>
-      )}
 
-      <Form>
-        {!generateForAllDepartments && (
-          <Form.Group controlId="institution">
-            <Form.Label>Institution</Form.Label>
-            <Dropdown>
-              <Dropdown.Toggle variant="success" id="dropdown-basic">
-                {filters.institution ? filters.institution : 'All'}
-              </Dropdown.Toggle>
-
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setFilters({ ...filters, institution: null })}>
-                  All
-                </Dropdown.Item>
-                {Array.isArray(institutionList) && institutionList.map((institution) => (
-                  <Dropdown.Item
-                    key={institution}
-                    onClick={() => setFilters({ ...filters, institution })}
-                  >
-                    {institution}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-          </Form.Group>
+        {error && (
+          <Alert 
+            variant="danger" 
+            dismissible 
+            onClose={() => setError(null)}
+            className="border-0 shadow-sm mb-4"
+            style={{ borderRadius: '12px' }}
+          >
+            <div className="d-flex align-items-center gap-2">
+              <CIcon icon={cilWarning} />
+              {error}
+            </div>
+          </Alert>
         )}
 
-        <Form.Group controlId="generateForAllDepartments" className="mb-3">
-          <Form.Check
-            type="checkbox"
-            label="Generate barcodes for all departments in this institution"
-            checked={generateForAllDepartments}
-            onChange={(e) => setGenerateForAllDepartments(e.target.checked)}
-          />
-        </Form.Group>
+        {/* Filters Section */}
+        <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '16px' }}>
+          <CardHeader 
+            className="bg-white border-0 py-3" 
+            style={{ borderRadius: '16px 16px 0 0' }}
+          >
+            <h5 className="mb-0 fw-bold">
+              <CIcon icon={cilFilter} className="me-2" />
+              Filter & Search Assets
+            </h5>
+          </CardHeader>
+          <CardBody className="p-4">
+            <Row>
+              {!generateForAllDepartments && (
+                <Col md={6} className="mb-3">
+                  <Form.Group>
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilBuilding} className="me-2" />
+                      Institution
+                    </Form.Label>
+                    <Dropdown>
+                      <Dropdown.Toggle 
+                        variant="outline-primary" 
+                        id="dropdown-basic"
+                        className="w-100 text-start border-0 shadow-sm"
+                        style={{ borderRadius: '8px' }}
+                      >
+                        {filters.institution ? filters.institution : 'Select Institution'}
+                      </Dropdown.Toggle>
 
-        {!generateForAllDepartments && (
-          <Form.Group controlId="department">
-            <Form.Label>Department</Form.Label>
-            <Dropdown>
-              <Dropdown.Toggle variant="success" id="dropdown-basic">
-                {filters.department ? filters.department : 'All'}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => setFilters({ ...filters, department: null })}>
-                  All
-                </Dropdown.Item>
-                {Array.isArray(departments) && departments.map((department) => (
-                  <Dropdown.Item
-                    key={department}
-                    onClick={() => setFilters({ ...filters, department })}
-                  >
-                    {department}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-          </Form.Group>
+                      <Dropdown.Menu className="w-100">
+                        <Dropdown.Item onClick={() => setFilters({ ...filters, institution: null })}>
+                          All Institutions
+                        </Dropdown.Item>
+                        {Array.isArray(institutionList) && institutionList.map((institution) => (
+                          <Dropdown.Item
+                            key={institution}
+                            onClick={() => setFilters({ ...filters, institution })}
+                          >
+                            {institution}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </Form.Group>
+                </Col>
+              )}
+
+              {!generateForAllDepartments && (
+                <Col md={6} className="mb-3">
+                  <Form.Group>
+                    <Form.Label className="fw-semibold">
+                      <CIcon icon={cilUser} className="me-2" />
+                      Department
+                    </Form.Label>
+                    <Dropdown>
+                      <Dropdown.Toggle 
+                        variant="outline-primary" 
+                        id="dropdown-basic"
+                        className="w-100 text-start border-0 shadow-sm"
+                        style={{ borderRadius: '8px' }}
+                      >
+                        {filters.department ? filters.department : 'Select Department'}
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="w-100">
+                        <Dropdown.Item onClick={() => setFilters({ ...filters, department: null })}>
+                          All Departments
+                        </Dropdown.Item>
+                        {Array.isArray(departments) && departments.map((department) => (
+                          <Dropdown.Item
+                            key={department}
+                            onClick={() => setFilters({ ...filters, department })}
+                          >
+                            {department}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </Form.Group>
+                </Col>
+              )}
+
+              <Col md={12} className="mb-3">
+                <Form.Group>
+                  <Form.Label className="fw-semibold">
+                    <CIcon icon={cilSearch} className="me-2" />
+                    Search Asset
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Enter asset name or ID to search..."
+                    className="border-0 shadow-sm"
+                    style={{ borderRadius: '8px' }}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col md={12} className="mb-3">
+                <Form.Group>
+                  <Form.Check
+                    type="checkbox"
+                    label={
+                      <span className="fw-semibold">
+                        <CIcon icon={cilSettings} className="me-2" />
+                        Generate barcodes for all departments in this institution
+                      </span>
+                    }
+                    checked={generateForAllDepartments}
+                    onChange={(e) => setGenerateForAllDepartments(e.target.checked)}
+                    className="p-3 border rounded-3"
+                    style={{ 
+                      backgroundColor: generateForAllDepartments ? 'rgba(102, 126, 234, 0.1)' : 'transparent',
+                      borderColor: generateForAllDepartments ? '#667eea' : '#dee2e6',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Search Results */}
+            {Array.isArray(searchResults) && searchResults.length > 0 && (
+              <div className="mt-3">
+                <h6 className="fw-semibold mb-2">
+                  <CIcon icon={cilList} className="me-2" />
+                  Search Results ({searchResults.length})
+                </h6>
+                <ListGroup className="border-0 shadow-sm" style={{ borderRadius: '8px' }}>
+                  {searchResults.map((result) => (
+                    <ListGroup.Item
+                      key={result.id}
+                      action
+                      onClick={() => handleSelectAsset(result)}
+                      className="border-0 border-bottom"
+                      style={{ 
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(102, 126, 234, 0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent'
+                      }}
+                    >
+                      <div className="d-flex align-items-center">
+                        <CIcon icon={cilBarcode} className="me-2 text-primary" />
+                        {result.assetName}
+                      </div>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* Generate Button */}
+        <div className="text-center mb-4">
+          <Button 
+            variant="primary" 
+            onClick={handleGenerateBarcodes}
+            disabled={isLoading}
+            className="px-5 py-3"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none',
+              borderRadius: '12px',
+              fontWeight: '600',
+              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {isLoading ? (
+              <>
+                <div className="spinner-border spinner-border-sm me-2" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                Generating...
+              </>
+            ) : (
+              <>
+                <CIcon icon={cilBarcode} className="me-2" />
+                {generateForAllDepartments 
+                  ? `Generate Barcodes for All Departments in ${filters.institution || 'Selected Institution'}`
+                  : 'Generate Barcodes'
+                }
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Progress Alert */}
+        {generationProgress && (
+          <Alert 
+            variant="info" 
+            className="border-0 shadow-sm mb-4"
+            style={{ borderRadius: '12px' }}
+          >
+            <div className="d-flex align-items-center gap-2">
+              <CIcon icon={cilInfo} />
+              {generationProgress}
+            </div>
+          </Alert>
         )}
 
-        <Form.Group controlId="searchTerm">
-          <Form.Label>Search Asset</Form.Label>
-          <Form.Control
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Enter asset name or ID"
-          />
-        </Form.Group>
-      </Form>
-
-      {Array.isArray(searchResults) && searchResults.length > 0 && (
-        <ListGroup>
-          {searchResults.map((result) => (
-            <ListGroup.Item
-              key={result.id}
-              action
-              onClick={() => handleSelectAsset(result)}
-              className="cursor-pointer"
+        {/* Generated Barcodes Section */}
+        {Array.isArray(generatedBarcodes) && generatedBarcodes.length > 0 && (
+          <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '16px' }}>
+            <CardHeader 
+              className="bg-white border-0 py-3" 
+              style={{ borderRadius: '16px 16px 0 0' }}
             >
-              {result.assetName}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
-      )}
-
-      <Button 
-        variant="primary" 
-        onClick={handleGenerateBarcodes}
-        disabled={isLoading}
-      >
-        {isLoading 
-          ? 'Generating...' 
-          : generateForAllDepartments 
-            ? `Generate Barcodes for All Departments in ${filters.institution || 'Selected Institution'}`
-            : 'Generate Barcodes'
-        }
-      </Button>
-
-      {generationProgress && (
-        <div className="alert alert-info mt-3" role="alert">
-          {generationProgress}
-        </div>
-      )}
-
-      {Array.isArray(generatedBarcodes) && generatedBarcodes.length > 0 && (
-        <div className="mt-4" ref={barcodesComponentRef}>
-          <h3>Generated Barcodes ({generatedBarcodes.length} total)</h3>
-          <Card>
-            <Card.Body>
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 className="mb-0 fw-bold">
+                    <CIcon icon={cilTable} className="me-2" />
+                    Generated Barcodes
+                  </h5>
+                  <small className="text-muted">{generatedBarcodes.length} barcodes generated</small>
+                </div>
+                <div className="d-flex gap-2">
+                  <Badge bg="success" className="px-3 py-2" style={{ borderRadius: '8px' }}>
+                    <CIcon icon={cilCheck} className="me-1" />
+                    Ready
+                  </Badge>
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm"
+                    onClick={handleDownloadPdf}
+                    style={{ borderRadius: '8px' }}
+                  >
+                    <CIcon icon={cilPrint} className="me-1" />
+                    Export PDF
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardBody className="p-0">
               <div className="table-responsive">
-                <table className="table table-striped">
-                  <thead>
+                <table className="table table-hover mb-0">
+                  <thead className="bg-light">
                     <tr>
-                      <th>#</th>
-                      <th>Name</th>
-                      <th>Institution</th>
-                      <th>Department</th>
-                      <th>Location</th>
-                      <th>Barcode Code</th>
+                      <th className="border-0 py-3 px-4">#</th>
+                      <th className="border-0 py-3 px-4">Name</th>
+                      <th className="border-0 py-3 px-4">Institution</th>
+                      <th className="border-0 py-3 px-4">Department</th>
+                      <th className="border-0 py-3 px-4">Location</th>
+                      <th className="border-0 py-3 px-4">Barcode Code</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -482,34 +672,79 @@ const MultipleEncode = () => {
                       const cleanCode = `${namePart.substring(0, 2).toUpperCase()}/${parts.find(part => part.startsWith('Type:'))?.split(':')[1]?.substring(0, 2).toUpperCase() || ''}/${instPart.substring(0, 2).toUpperCase()}/${deptPart.substring(0, 2).toUpperCase()}/${locPart.substring(0, 2).toUpperCase()}`
                       
                       return (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{namePart}</td>
-                          <td>{instPart}</td>
-                          <td>{deptPart}</td>
-                          <td>{locPart}</td>
-                          <td><code>{cleanCode}</code></td>
+                        <tr key={index} style={{ transition: 'all 0.2s ease' }}>
+                          <td className="py-3 px-4">
+                            <Badge bg="primary" style={{ borderRadius: '6px' }}>
+                              {index + 1}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 fw-semibold">{namePart}</td>
+                          <td className="py-3 px-4">{instPart}</td>
+                          <td className="py-3 px-4">{deptPart}</td>
+                          <td className="py-3 px-4">{locPart}</td>
+                          <td className="py-3 px-4">
+                            <code className="bg-light px-2 py-1 rounded" style={{ fontSize: '0.9rem' }}>
+                              {cleanCode}
+                            </code>
+                          </td>
                         </tr>
                       )
                     })}
                   </tbody>
                 </table>
               </div>
-            </Card.Body>
+            </CardBody>
           </Card>
-        </div>
-      )}
-      <Button variant="primary" onClick={() => handleDownloadPdf()}>
-        Export Barcodes to PDF
-      </Button>
+        )}
 
-      <Modal show={showAssetModal} onHide={handleCloseAssetModal} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Asset Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{assetDetails && <AssetDetails details={assetDetails} />}</Modal.Body>
-      </Modal>
-    </Container>
+        {/* Asset Details Modal */}
+        <Modal show={showAssetModal} onHide={handleCloseAssetModal} size="lg">
+          <Modal.Header 
+            closeButton
+            className="bg-primary text-white"
+            style={{ borderRadius: '16px 16px 0 0' }}
+          >
+            <Modal.Title>
+              <CIcon icon={cilBarcode} className="me-2" />
+              Asset Details
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="p-4">
+            {assetDetails && <AssetDetails details={assetDetails} />}
+          </Modal.Body>
+        </Modal>
+
+        <style jsx>{`
+          .multiple-encode {
+            transition: all 0.3s ease;
+          }
+          
+          .card {
+            transition: all 0.3s ease;
+          }
+          
+          .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+          }
+          
+          .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+          }
+          
+          .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          }
+          
+          .table tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+          }
+        `}</style>
+      </Container>
+    </div>
   )
 }
+
 export default MultipleEncode
