@@ -33,6 +33,7 @@ export const endpoints = {
   
   // Barcode / Encoding
   generateBarcodesByInstitutionAndDepartment: `${API_URL}/api/barcodes/institution-department`,
+  generateBarcodesByInstitution: `${API_URL}/api/barcodes/institution`,
   
   // Categories and Metadata - Updated to use new Grafana API endpoints
   categories: `${API_URL}/api/categories`,

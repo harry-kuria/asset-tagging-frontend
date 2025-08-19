@@ -105,6 +105,7 @@ const MultipleEncode = () => {
   })
   const [institutionList, setInstitutionList] = useState([])
   const [generatedBarcodes, setGeneratedBarcodes] = useState([])
+  const [generateForAllDepartments, setGenerateForAllDepartments] = useState(false)
   const handleDownloadBarcode = async (barcode) => {
     try {
       const canvas = await html2canvas(/* Ref of the barcode element */)
@@ -125,19 +126,48 @@ const MultipleEncode = () => {
     setError(null)
     try {
       // Check if we have the required fields
-      if (!filters.institution || !filters.department) {
-        setError('Please select both institution and department to generate barcodes.')
+      if (!filters.institution) {
+        setError('Please select an institution to generate barcodes.')
         setIsLoading(false)
         return
       }
 
-      const response = await axiosInstance.post(
-        endpoints.generateBarcodesByInstitutionAndDepartment,
-        {
-          institution: filters.institution,
-          department: filters.department,
-        },
-      )
+      // If generating for all departments, only institution is required
+      if (generateForAllDepartments) {
+        if (!filters.institution) {
+          setError('Please select an institution to generate barcodes for all departments.')
+          setIsLoading(false)
+          return
+        }
+      } else {
+        // If not generating for all departments, both institution and department are required
+        if (!filters.institution || !filters.department) {
+          setError('Please select both institution and department to generate barcodes.')
+          setIsLoading(false)
+          return
+        }
+      }
+
+      let response
+      if (generateForAllDepartments) {
+        // Generate barcodes for all departments in the institution
+        response = await axiosInstance.post(
+          endpoints.generateBarcodesByInstitution,
+          {
+            institution: filters.institution,
+          },
+        )
+      } else {
+        // Generate barcodes for specific institution and department
+        response = await axiosInstance.post(
+          endpoints.generateBarcodesByInstitutionAndDepartment,
+          {
+            institution: filters.institution,
+            department: filters.department,
+          },
+        )
+      }
+
       const { barcodeTags, assetDetails } = response.data.data
       // Now you can use barcodeTags and assetDetails as needed
       console.log('Barcode Tags:', barcodeTags)
@@ -329,27 +359,40 @@ const MultipleEncode = () => {
             </Dropdown.Menu>
           </Dropdown>
         </Form.Group>
-        <Form.Group controlId="department">
-          <Form.Label>Department</Form.Label>
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
-              {filters.department ? filters.department : 'All'}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => setFilters({ ...filters, department: null })}>
-                All
-              </Dropdown.Item>
-              {Array.isArray(departments) && departments.map((department) => (
-                <Dropdown.Item
-                  key={department}
-                  onClick={() => setFilters({ ...filters, department })}
-                >
-                  {department}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+
+        <Form.Group controlId="generateForAllDepartments" className="mb-3">
+          <Form.Check
+            type="checkbox"
+            label="Generate barcodes for all departments in this institution"
+            checked={generateForAllDepartments}
+            onChange={(e) => setGenerateForAllDepartments(e.target.checked)}
+          />
         </Form.Group>
+
+        {!generateForAllDepartments && (
+          <Form.Group controlId="department">
+            <Form.Label>Department</Form.Label>
+            <Dropdown>
+              <Dropdown.Toggle variant="success" id="dropdown-basic">
+                {filters.department ? filters.department : 'All'}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => setFilters({ ...filters, department: null })}>
+                  All
+                </Dropdown.Item>
+                {Array.isArray(departments) && departments.map((department) => (
+                  <Dropdown.Item
+                    key={department}
+                    onClick={() => setFilters({ ...filters, department })}
+                  >
+                    {department}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </Form.Group>
+        )}
+
         <Form.Group controlId="searchTerm">
           <Form.Label>Search Asset</Form.Label>
           <Form.Control
@@ -381,7 +424,12 @@ const MultipleEncode = () => {
         onClick={handleGenerateBarcodes}
         disabled={isLoading}
       >
-        {isLoading ? 'Generating...' : 'Generate Barcodes'}
+        {isLoading 
+          ? 'Generating...' 
+          : generateForAllDepartments 
+            ? `Generate Barcodes for All Departments in ${filters.institution || 'Selected Institution'}`
+            : 'Generate Barcodes'
+        }
       </Button>
 
       {Array.isArray(generatedBarcodes) && generatedBarcodes.length > 0 && (
